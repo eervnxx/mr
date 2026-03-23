@@ -9,7 +9,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* منع التحديد العشوائي */
+            user-select: none;
         }
 
         body {
@@ -24,7 +24,6 @@
             cursor: crosshair;
         }
 
-        /* تأثير ضبابي احمر متحرك (خلفية مخيفة) */
         body::before {
             content: "";
             position: fixed;
@@ -44,7 +43,6 @@
             100% { opacity: 0.3; }
         }
 
-        /* حاويات الشاشات */
         .screen {
             position: relative;
             width: 90%;
@@ -60,7 +58,6 @@
             margin: 20px;
         }
 
-        /* واجهة تسجيل الدخول (البداية) */
         .login-container {
             text-align: center;
         }
@@ -93,22 +90,43 @@
             font-family: monospace;
         }
 
-        .secret-input {
+        /* الحقول المنفصلة للتاريخ */
+        .date-fields {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .date-field {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .date-field label {
+            display: block;
+            color: #aa5555;
+            font-size: 0.7rem;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .date-field input, .date-field select {
+            width: 100%;
             background: #0a0505;
             border: 2px solid #a22;
             color: #ff9999;
-            padding: 14px 18px;
-            width: 100%;
-            font-size: 1.3rem;
+            padding: 12px 8px;
+            font-size: 1.1rem;
             text-align: center;
-            letter-spacing: 2px;
             font-family: monospace;
             outline: none;
-            transition: 0.2s;
             border-radius: 12px;
+            font-weight: bold;
         }
 
-        .secret-input:focus {
+        .date-field input:focus, .date-field select:focus {
             border-color: #ff4444;
             box-shadow: 0 0 12px #ff0000;
             background: #1a0505;
@@ -119,7 +137,7 @@
             border: 1px solid #b33;
             color: #ff7777;
             padding: 12px 25px;
-            margin-top: 25px;
+            margin-top: 15px;
             font-size: 1.2rem;
             font-weight: bold;
             font-family: monospace;
@@ -148,7 +166,6 @@
             font-weight: bold;
         }
 
-        /* الشاشة الثانية: الأزرار المنثقبة والمقلب */
         .second-screen, .final-screen {
             display: none;
         }
@@ -202,7 +219,6 @@
             z-index: 100;
         }
 
-        /* تأثير الكتابة التدريجية */
         .typewriter-text {
             font-family: 'Courier New', monospace;
             font-size: 1.2rem;
@@ -223,11 +239,6 @@
             margin: 20px 0;
         }
 
-        button {
-            background: none;
-            border: none;
-        }
-
         footer {
             font-size: 10px;
             color: #6a1a1a;
@@ -240,26 +251,42 @@
             .screen { padding: 1.2rem; }
             .punch-btn { width: 85%; font-size: 1rem; }
             .glitch-title { font-size: 1.5rem; }
+            .date-fields { gap: 6px; }
+            .date-field input, .date-field select { padding: 8px 4px; font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
 
-<!-- قماش الألعاب النارية والمفرقعات -->
 <canvas id="fireworksCanvas" class="fireworks-canvas" style="position: fixed; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 200;"></canvas>
 
-<!-- الشاشة الأولى: تسجيل الدخول بالتاريخ السري 2006-5-17 -->
+<!-- الشاشة الأولى: تسجيل الدخول بحقول منفصلة (سنة، شهر، يوم) -->
 <div id="loginScreen" class="screen login-container">
     <div class="glitch-title">[ ACCESS_GRANTED? ]</div>
     <div class="warning-text">⚠ نظام ابتزاز آمن • مستوى الاختراق: DARKNET ⚠</div>
-    <div class="warning-text" style="font-size:0.7rem;">► أدخل الرمز الزمني السري ◄</div>
-    <input type="text" id="secretDateInput" class="secret-input" placeholder="YYYY-MM-DD" autocomplete="off">
+    <div class="warning-text" style="font-size:0.7rem;">► أدخل الرمز الزمني السري (منفصل) ◄</div>
+    
+    <div class="date-fields">
+        <div class="date-field">
+            <label>█████</label>
+            <input type="text" id="yearInput" maxlength="4" placeholder="السنة" autocomplete="off">
+        </div>
+        <div class="date-field">
+            <label>███</label>
+            <input type="text" id="monthInput" maxlength="2" placeholder="الشهر" autocomplete="off">
+        </div>
+        <div class="date-field">
+            <label>███</label>
+            <input type="text" id="dayInput" maxlength="2" placeholder="اليوم" autocomplete="off">
+        </div>
+    </div>
+    
     <button id="submitLoginBtn" class="enter-btn">⌧ فك القفل ⌧</button>
     <div id="loginError" class="error-msg"></div>
     <footer>تحذير: محاولة اختراق سيتم رصدها</footer>
 </div>
 
-<!-- الشاشة الثانية: الأزرار المنثقبة + أسئلة مريام وميسان -->
+<!-- الشاشة الثانية: الأزرار المنثقبة -->
 <div id="secondScreen" class="screen second-screen">
     <div class="glitch-title" style="font-size: 1.8rem;">[ ENCRYPTED_ZONE ]</div>
     <div class="question-box">
@@ -271,67 +298,57 @@
     <footer style="margin-top:20px;">أزرار مثقوبة .. اختر بحذر</footer>
 </div>
 
-<!-- الشاشة الثالثة والأخيرة: رسالة مكتوبة تدريجياً -->
+<!-- الشاشة الثالثة والأخيرة -->
 <div id="finalScreen" class="screen final-screen">
     <div class="glitch-title" style="font-size: 1.5rem;">[ MESSAGE_DECODED ]</div>
     <div class="final-message">
         <div id="typewriterContainer" class="typewriter-text"></div>
     </div>
-    <footer>♥  هدية خاصة  ♥</footer>
+    <footer>♥ هدية خاصة ♥</footer>
 </div>
 
 <script>
     (function() {
-        // ---------- الثوابت ----------
-        const CORRECT_DATE = "2006-5-17";    // التاريخ السري (بدون تلميح)
+        // القيم الصحيحة للتاريخ (كل جزء منفصل)
+        const CORRECT_YEAR = "2006";
+        const CORRECT_MONTH = "5";
+        const CORRECT_DAY = "17";
         
-        // عناصر الشاشات
         const loginScreen = document.getElementById('loginScreen');
         const secondScreen = document.getElementById('secondScreen');
         const finalScreen = document.getElementById('finalScreen');
         
-        const loginInput = document.getElementById('secretDateInput');
+        const yearInput = document.getElementById('yearInput');
+        const monthInput = document.getElementById('monthInput');
+        const dayInput = document.getElementById('dayInput');
         const loginBtn = document.getElementById('submitLoginBtn');
         const loginErrorDiv = document.getElementById('loginError');
         
-        // أزرار الشاشة الثانية
         const yesMiriamBtn = document.getElementById('yesMiriamBtn');
         const subQuestionDiv = document.getElementById('subQuestion');
         const yesMaysanBtn = document.getElementById('yesMaysanBtn');
         
-        // متغيرات للتحكم في المفرقعات والنار
-        let fireworkInterval = null;
         let canvas = document.getElementById('fireworksCanvas');
         let ctx = canvas.getContext('2d');
         let particles = [];
         let animationId = null;
         let fireworksActive = false;
         
-        // ضبط أبعاد canvas باستمرار
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
         window.addEventListener('resize', () => {
             resizeCanvas();
-            if(fireworksActive) drawFireworksLoop(); // إعادة الرسم
+            if(fireworksActive) drawFireworksLoop();
         });
         resizeCanvas();
         
-        // ----- كلاس particle بسيط للألعاب النارية والمفرقعات -----
         class Particle {
             constructor(x, y, vx, vy, color, size, life, isFire = true) {
-                this.x = x;
-                this.y = y;
-                this.vx = vx;
-                this.vy = vy;
-                this.color = color;
-                this.size = size;
-                this.life = life;    // max life
-                this.initialLife = life;
-                this.gravity = 0.2;
-                this.friction = 0.98;
-                this.isFire = isFire;
+                this.x = x; this.y = y; this.vx = vx; this.vy = vy;
+                this.color = color; this.size = size; this.life = life; this.initialLife = life;
+                this.gravity = 0.2; this.friction = 0.98; this.isFire = isFire;
             }
             update() {
                 this.vx *= this.friction;
@@ -370,7 +387,6 @@
                 let life = 50 + Math.random() * 30;
                 particles.push(new Particle(centerX, centerY, vx, vy, color, size, life, true));
             }
-            // sparks إضافية
             for(let i=0;i<15;i++) {
                 let angle2 = Math.random() * Math.PI * 2;
                 let spd = Math.random() * 5;
@@ -385,7 +401,6 @@
             let x = Math.random() * canvas.width;
             let y = Math.random() * canvas.height * 0.6 + 50;
             createExplosion(x, y, true);
-            // مفرقعات متعددة
             setTimeout(() => {
                 if(fireworksActive) createExplosion(x + (Math.random()-0.5)*80, y + (Math.random()-0.5)*60, false);
             }, 100);
@@ -395,14 +410,12 @@
             if(fireworksActive) return;
             fireworksActive = true;
             particles = [];
-            // تفعيل المؤثرات المتكررة
             let fireInterval = setInterval(() => {
                 if(!fireworksActive) {
                     clearInterval(fireInterval);
                     return;
                 }
                 spawnRandomFirework();
-                // أحيانًا مفرقعات إضافية
                 if(Math.random() > 0.6) {
                     setTimeout(() => {
                         if(fireworksActive) {
@@ -414,7 +427,6 @@
                 }
             }, 600);
             
-            // رسم الحلقة
             function drawLoop() {
                 if(!ctx) return;
                 if(!fireworksActive && particles.length === 0) {
@@ -443,10 +455,8 @@
             if(animationId) cancelAnimationFrame(animationId);
             animationId = requestAnimationFrame(drawLoop);
             
-            // إيقاف بعد مدة معينة لكن نستمر لمدة 8 ثواني ثم نخفف تدريجياً (نستمر بمؤثرات)
             setTimeout(() => {
                 if(fireworksActive) {
-                    // نضيف وميض أخير
                     for(let i=0;i<8;i++) {
                         setTimeout(() => {
                             if(fireworksActive) {
@@ -458,7 +468,6 @@
                     }
                     setTimeout(() => {
                         fireworksActive = false;
-                        // تنظيف نهائي بعد أن تهدأ الجسيمات
                         setTimeout(() => {
                             if(particles.length === 0 && animationId) {
                                 cancelAnimationFrame(animationId);
@@ -471,14 +480,14 @@
             }, 100);
         }
         
-        // دالة مساعدة لإظهار الشاشة وإخفاء الأخرى
         function showLogin() {
             loginScreen.style.display = "block";
             secondScreen.style.display = "none";
             finalScreen.style.display = "none";
             loginErrorDiv.innerText = "";
-            loginInput.value = "";
-            // إيقاف الألعاب النارية إن وجدت
+            yearInput.value = "";
+            monthInput.value = "";
+            dayInput.value = "";
             if(fireworksActive) fireworksActive = false;
         }
         
@@ -486,32 +495,31 @@
             loginScreen.style.display = "none";
             secondScreen.style.display = "block";
             finalScreen.style.display = "none";
-            // إعادة ضبط الأسئلة
             subQuestionDiv.classList.add('hidden-sub');
-            // إعادة تمكين الأزرار
             yesMiriamBtn.disabled = false;
+            yesMiriamBtn.style.opacity = "1";
+            yesMiriamBtn.style.textDecoration = "none";
+            yesMiriamBtn.innerText = "● هل انت مريام؟ ●";
             if(yesMaysanBtn) yesMaysanBtn.disabled = false;
+            yesMaysanBtn.style.opacity = "1";
+            yesMaysanBtn.innerText = "🔘 هل انت من ميسان؟ 🔘";
         }
         
         function showFinalAndTypewriter() {
             loginScreen.style.display = "none";
             secondScreen.style.display = "none";
             finalScreen.style.display = "block";
-            // تشغيل المؤثرات النارية والصوتيات البصرية (مفرقعات نارية)
             startFireworksAndCrackers(9);
-            // كتابة النص تدريجياً
             const fullText = "لقد تم تصميم هذا الموقع خصيصا لك يا مريام لأنك اصبحت صديقة ذلك الشخص.";
             const container = document.getElementById('typewriterContainer');
-            container.innerHTML = "";   // تفريغ
+            container.innerHTML = "";
             let index = 0;
             function typeNext() {
                 if(index < fullText.length) {
-                    // إضافة حرف بحرف
                     container.innerHTML += fullText.charAt(index);
                     index++;
-                    setTimeout(typeNext, 85); // سرعة الكتابة كأنها آلة كاتبة
+                    setTimeout(typeNext, 85);
                 } else {
-                    // نقطة النهاية يمكن إضافة رمز وامض
                     let cursorSpan = document.createElement("span");
                     cursorSpan.style.animation = "blink 1s infinite";
                     cursorSpan.innerText = "▌";
@@ -519,7 +527,6 @@
                 }
             }
             typeNext();
-            // إضافة تأثير وميض للمؤشر
             const styleBlink = document.createElement('style');
             styleBlink.innerHTML = `@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }`;
             if(!document.getElementById('blinkAnimStyle')) {
@@ -528,51 +535,48 @@
             }
         }
         
-        // ----- منطق تسجيل الدخول بالتاريخ السري (بدون تلميح) -----
-        loginBtn.addEventListener('click', () => {
-            let entered = loginInput.value.trim();
-            if(entered === CORRECT_DATE) {
-                // صحة التاريخ بالضبط
+        // التحقق من صحة التاريخ (ثلاثة حقول منفصلة)
+        function checkDate() {
+            let year = yearInput.value.trim();
+            let month = monthInput.value.trim();
+            let day = dayInput.value.trim();
+            
+            if(year === CORRECT_YEAR && month === CORRECT_MONTH && day === CORRECT_DAY) {
                 loginErrorDiv.innerText = "";
                 showSecond();
             } else {
-                loginErrorDiv.innerText = "✘ رمز زمني خاطئ ✘\nتم تسجيل محاولة الدخول غير مصرح بها";
-                loginInput.style.borderColor = "#ff0000";
-                setTimeout(() => { loginInput.style.borderColor = "#a22"; }, 800);
-                // تأثير ارتجاج بسيط
+                loginErrorDiv.innerText = "✘ رمز زمني خاطئ ✘\nالوصول مرفوض";
+                [yearInput, monthInput, dayInput].forEach(inp => {
+                    inp.style.borderColor = "#ff0000";
+                    setTimeout(() => inp.style.borderColor = "#a22", 500);
+                });
                 loginScreen.style.transform = "translateX(4px)";
-                setTimeout(() => { loginScreen.style.transform = "translateX(-4px)"; }, 60);
-                setTimeout(() => { loginScreen.style.transform = "translateX(0)"; }, 120);
+                setTimeout(() => loginScreen.style.transform = "translateX(-4px)", 60);
+                setTimeout(() => loginScreen.style.transform = "translateX(0)", 120);
             }
+        }
+        
+        loginBtn.addEventListener('click', checkDate);
+        
+        [yearInput, monthInput, dayInput].forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if(e.key === 'Enter') checkDate();
+            });
         });
         
-        // السماح بالضغط على Enter
-        loginInput.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') {
-                e.preventDefault();
-                loginBtn.click();
-            }
-        });
-        
-        // ----- الأزرار المنثقبة مع المرحلتين -----
         yesMiriamBtn.addEventListener('click', () => {
-            // يظهر الزر الثاني "هل انت من ميسان"
             subQuestionDiv.classList.remove('hidden-sub');
-            yesMiriamBtn.disabled = true;   // يصبح مثقوب المعنى: بعد الضغط يظهر التالي
+            yesMiriamBtn.disabled = true;
             yesMiriamBtn.style.opacity = "0.7";
             yesMiriamBtn.style.textDecoration = "line-through";
             yesMiriamBtn.innerText = "✓ تم التأكيد: مريام ✓";
-            // تأثير ارتجاجي صغير
             secondScreen.style.transform = "scale(0.99)";
             setTimeout(() => secondScreen.style.transform = "", 120);
         });
         
         yesMaysanBtn.addEventListener('click', () => {
-            // عند الضغط على "هل انت من ميسان" تظهر المفرقعات ثم الشاشة الثالثة
             if(!yesMaysanBtn.disabled) {
-                // تشغيل مفرقعات فورية قوية
                 startFireworksAndCrackers(6);
-                // أيضًا انفجار لحظي في منتصف الشاشة
                 if(canvas) {
                     let centerX = canvas.width/2;
                     let centerY = canvas.height/2;
@@ -581,23 +585,26 @@
                         if(canvas) createExplosion(centerX+50, centerY-30, true);
                     }, 150);
                 }
-                // تعطيل الزر بعد النقر
                 yesMaysanBtn.disabled = true;
                 yesMaysanBtn.style.opacity = "0.6";
                 yesMaysanBtn.style.borderStyle = "solid";
                 yesMaysanBtn.innerText = "✔ تأكيد ميسان ✔";
-                // بعد ثانية ونصف تقريبا ننتقل للواجهة الثالثة
                 setTimeout(() => {
                     showFinalAndTypewriter();
                 }, 1300);
             }
         });
         
-        // أي محاولة للوصول إلى الشاشة الثالثة عبر الاختصارات غير مجدية
-        // إخفاء البداية بشكل صحيح
         showLogin();
         
-        // تأثيرات مرعبة إضافية: نبضات عشوائية للظل
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+                alert("⚠️ تم حظر أدوات المطور ⚠️");
+            }
+        });
+        
         setInterval(() => {
             if(loginScreen.style.display !== "none") {
                 let glow = Math.random() * 12 + 6;
@@ -612,34 +619,6 @@
                 finalScreen.style.boxShadow = `0 0 ${Math.random()*12+8}px #ff6666`;
             }
         }, 2000);
-        
-        // منع فتح أدوات المطور ببعض التحذيرات البسيطة (غير أمني بشكل كامل لكن جمالي)
-        document.addEventListener('contextmenu', (e) => e.preventDefault());
-        document.addEventListener('keydown', (e) => {
-            if(e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-                e.preventDefault();
-                alert("⚠️ تم حظر أدوات المطور ⚠️");
-            }
-        });
-        
-        // إضافة تأثير اهتزاز دوري للشاشة الأولى (تخويف)
-        let glitchInterval = setInterval(() => {
-            if(loginScreen.style.display !== "none" && document.hasFocus()) {
-                if(Math.random() > 0.85) {
-                    loginScreen.style.transform = `translate(${Math.random()*3-1.5}px, ${Math.random()*2-1}px)`;
-                    setTimeout(() => loginScreen.style.transform = "", 80);
-                }
-            }
-        }, 1800);
-        
-        // تنظيف عند الحاجة
-        window.addEventListener('beforeunload', ()=>{
-            if(fireworksActive) fireworksActive = false;
-            if(animationId) cancelAnimationFrame(animationId);
-            clearInterval(glitchInterval);
-        });
-        
-        // إضافة دعم للهواتف : لا مشكلة
     })();
 </script>
 </body>
