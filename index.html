@@ -49,14 +49,21 @@
         }
 
         .login-icon {
-            font-size: 60px;
             margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .login-icon svg {
+            width: 80px;
+            height: 80px;
             filter: drop-shadow(0 8px 20px rgba(255, 100, 150, 0.5));
             animation: gentlePulse 2.5s infinite;
         }
 
         @keyframes gentlePulse {
-            0%, 100% {
+            0%,
+            100% {
                 transform: scale(1);
             }
             50% {
@@ -194,7 +201,6 @@
 
         .particle {
             position: absolute;
-            background: rgba(255, 255, 255, 0.5);
             border-radius: 50%;
             animation: floatUp linear infinite;
             opacity: 0;
@@ -284,15 +290,14 @@
             }
         }
 
-        .balloon {
+        /* بالونات SVG */
+        .balloon-wrapper {
             position: absolute;
             bottom: -200px;
-            font-size: 50px;
             animation: balloonFloat linear infinite;
             pointer-events: none;
             z-index: 4;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
-            transition: transform 0.3s ease;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
         }
 
         @keyframes balloonFloat {
@@ -350,13 +355,15 @@
         }
 
         .rose-hidden {
-            font-size: 0px;
+            transform: scale(0);
+            opacity: 0;
             transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: default;
+            filter: drop-shadow(0 0 30px rgba(255, 100, 100, 0.6));
         }
 
         .rose-bloom {
-            font-size: 160px;
+            transform: scale(1);
+            opacity: 1;
             animation: roseGrow 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             filter: drop-shadow(0 0 50px rgba(255, 100, 100, 0.8));
         }
@@ -380,7 +387,7 @@
             color: #fff;
             font-size: 28px;
             font-weight: 700;
-            margin-top: 15px;
+            margin-top: 25px;
             opacity: 0;
             transition: all 0.8s ease 0.5s;
             text-shadow: 0 0 30px rgba(255, 200, 200, 0.8);
@@ -416,13 +423,37 @@
             font-weight: 600;
             z-index: 1000;
             letter-spacing: 1px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             white-space: nowrap;
         }
 
         .welcome-toast.show {
             transform: translateX(-50%) translateY(0);
+        }
+
+        /* هدايا SVG صغيرة متناثرة */
+        .gift-icon {
+            position: absolute;
+            pointer-events: none;
+            z-index: 6;
+            animation: giftPop 1.5s ease-out forwards;
+            filter: drop-shadow(0 5px 15px rgba(255, 200, 0, 0.6));
+        }
+
+        @keyframes giftPop {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            30% {
+                transform: scale(1.4) rotate(15deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.8) rotate(-10deg) translateY(-80px);
+                opacity: 0;
+            }
         }
 
         @media (max-width: 500px) {
@@ -438,11 +469,12 @@
                 padding: 16px 30px;
                 font-size: 18px;
             }
-            .rose-bloom {
-                font-size: 100px;
-            }
             .message-inside {
                 font-size: 22px;
+            }
+            .rose-hidden svg {
+                width: 140px;
+                height: 140px;
             }
         }
     </style>
@@ -461,7 +493,37 @@
     <!-- ==================== صفحة تسجيل الدخول ==================== -->
     <div class="login-page" id="loginPage">
         <div class="login-container">
-            <div class="login-icon">🌸</div>
+            <div class="login-icon">
+                <!-- ستيكر وردة جميل -->
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="roseGrad1" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#ff7eb3"/>
+                            <stop offset="100%" stop-color="#c44569"/>
+                        </radialGradient>
+                        <radialGradient id="roseGrad2" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#ff9a9e"/>
+                            <stop offset="100%" stop-color="#e55073"/>
+                        </radialGradient>
+                    </defs>
+                    <!-- البتلات الخارجية -->
+                    <circle cx="50" cy="30" r="22" fill="url(#roseGrad1)" opacity="0.9"/>
+                    <circle cx="30" cy="50" r="22" fill="url(#roseGrad1)" opacity="0.9"/>
+                    <circle cx="70" cy="50" r="22" fill="url(#roseGrad1)" opacity="0.9"/>
+                    <circle cx="40" cy="70" r="22" fill="url(#roseGrad1)" opacity="0.9"/>
+                    <circle cx="60" cy="70" r="22" fill="url(#roseGrad1)" opacity="0.9"/>
+                    <!-- البتلات الداخلية -->
+                    <circle cx="50" cy="38" r="16" fill="url(#roseGrad2)" opacity="0.95"/>
+                    <circle cx="38" cy="52" r="16" fill="url(#roseGrad2)" opacity="0.95"/>
+                    <circle cx="62" cy="52" r="16" fill="url(#roseGrad2)" opacity="0.95"/>
+                    <!-- المركز -->
+                    <circle cx="50" cy="50" r="12" fill="#ffe066"/>
+                    <circle cx="50" cy="50" r="7" fill="#ffd700"/>
+                    <!-- ورقتان -->
+                    <ellipse cx="25" cy="75" rx="14" ry="6" fill="#4ecdc4" transform="rotate(-30 25 75)"/>
+                    <ellipse cx="75" cy="75" rx="14" ry="6" fill="#4ecdc4" transform="rotate(30 75 75)"/>
+                </svg>
+            </div>
             <div class="login-title">مرحباً بكِ</div>
             <div class="login-subtitle">أدخلي تاريخ ميلادكِ للمتابعة</div>
 
@@ -496,9 +558,104 @@
         <button class="reveal-btn" id="revealBtn" onclick="revealRose()">🎁 اضغطي هنا 🎁</button>
 
         <div class="rose-container" id="roseContainer">
-            <span class="rose-hidden" id="roseEmoji">🌹</span>
+            <!-- ستيكر وردة كبير للاحتفال -->
+            <div class="rose-hidden" id="roseEmoji">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+                    <defs>
+                        <radialGradient id="bigRoseGrad1" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#ff6b9d"/>
+                            <stop offset="100%" stop-color="#c44569"/>
+                        </radialGradient>
+                        <radialGradient id="bigRoseGrad2" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#ff9a9e"/>
+                            <stop offset="100%" stop-color="#e55073"/>
+                        </radialGradient>
+                        <radialGradient id="bigRoseGrad3" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#ffb3ba"/>
+                            <stop offset="100%" stop-color="#ff7eb3"/>
+                        </radialGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <!-- بتلات خارجية كبيرة -->
+                    <circle cx="100" cy="50" r="50" fill="url(#bigRoseGrad1)" opacity="0.85" filter="url(#glow)"/>
+                    <circle cx="55" cy="90" r="50" fill="url(#bigRoseGrad1)" opacity="0.85" filter="url(#glow)"/>
+                    <circle cx="145" cy="90" r="50" fill="url(#bigRoseGrad1)" opacity="0.85" filter="url(#glow)"/>
+                    <circle cx="70" cy="130" r="50" fill="url(#bigRoseGrad1)" opacity="0.85" filter="url(#glow)"/>
+                    <circle cx="130" cy="130" r="50" fill="url(#bigRoseGrad1)" opacity="0.85" filter="url(#glow)"/>
+                    <!-- بتلات وسطى -->
+                    <circle cx="100" cy="65" r="38" fill="url(#bigRoseGrad2)" opacity="0.9"/>
+                    <circle cx="65" cy="95" r="38" fill="url(#bigRoseGrad2)" opacity="0.9"/>
+                    <circle cx="135" cy="95" r="38" fill="url(#bigRoseGrad2)" opacity="0.9"/>
+                    <circle cx="85" cy="120" r="38" fill="url(#bigRoseGrad2)" opacity="0.9"/>
+                    <circle cx="115" cy="120" r="38" fill="url(#bigRoseGrad2)" opacity="0.9"/>
+                    <!-- بتلات داخلية -->
+                    <circle cx="100" cy="80" r="26" fill="url(#bigRoseGrad3)" opacity="0.95"/>
+                    <circle cx="75" cy="100" r="26" fill="url(#bigRoseGrad3)" opacity="0.95"/>
+                    <circle cx="125" cy="100" r="26" fill="url(#bigRoseGrad3)" opacity="0.95"/>
+                    <!-- مركز الوردة -->
+                    <circle cx="100" cy="100" r="18" fill="#ffe066"/>
+                    <circle cx="100" cy="100" r="10" fill="#ffd700"/>
+                    <circle cx="100" cy="100" r="5" fill="#ffaa00"/>
+                    <!-- أوراق خضراء -->
+                    <ellipse cx="35" cy="145" rx="28" ry="12" fill="#2ecc71" transform="rotate(-35 35 145)"/>
+                    <ellipse cx="165" cy="145" rx="28" ry="12" fill="#2ecc71" transform="rotate(35 165 145)"/>
+                    <ellipse cx="50" cy="155" rx="22" ry="9" fill="#27ae60" transform="rotate(-20 50 155)"/>
+                    <ellipse cx="150" cy="155" rx="22" ry="9" fill="#27ae60" transform="rotate(20 150 155)"/>
+                    <!-- بريق -->
+                    <circle cx="40" cy="40" r="4" fill="white" opacity="0.8"/>
+                    <circle cx="65" cy="30" r="2.5" fill="white" opacity="0.7"/>
+                    <circle cx="160" cy="50" r="3" fill="white" opacity="0.8"/>
+                </svg>
+            </div>
             <div class="message-inside" id="messageInside">هذا لكِ يا فطومة 💖</div>
         </div>
+    </div>
+
+    <!-- ============ SVG Templates للبالونات والهدايا (مخفية) ============ -->
+    <div style="display: none;">
+        <!-- بالون قلب -->
+        <svg id="balloonHeart" viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="ballGradH" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ff6b9d"/>
+                    <stop offset="100%" stop-color="#e91e63"/>
+                </linearGradient>
+            </defs>
+            <path d="M40 20 C40 8 25 0 18 15 C11 30 40 55 40 55 C40 55 69 30 62 15 C55 0 40 8 40 20Z" fill="url(#ballGradH)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+            <polygon points="38,55 42,55 41,70 39,70" fill="#888"/>
+            <line x1="40" y1="70" x2="40" y2="95" stroke="#888" stroke-width="1.5"/>
+            <circle cx="40" cy="20" r="5" fill="rgba(255,255,255,0.4)"/>
+        </svg>
+
+        <!-- بالون دائري وردي -->
+        <svg id="balloonRound" viewBox="0 0 70 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="ballGradR" cx="40%" cy="35%" r="60%">
+                    <stop offset="0%" stop-color="#ff9a9e"/>
+                    <stop offset="100%" stop-color="#e55073"/>
+                </radialGradient>
+            </defs>
+            <ellipse cx="35" cy="38" rx="28" ry="32" fill="url(#ballGradR)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+            <polygon points="33,68 37,68 36,78 34,78" fill="#888"/>
+            <line x1="35" y1="78" x2="35" y2="95" stroke="#888" stroke-width="1.5"/>
+            <ellipse cx="28" cy="28" rx="6" ry="8" fill="rgba(255,255,255,0.35)" transform="rotate(-20 28 28)"/>
+        </svg>
+
+        <!-- هدية -->
+        <svg id="giftBox" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="18" width="50" height="38" rx="4" fill="#ff6b9d" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <rect x="5" y="18" width="50" height="12" rx="2" fill="#e91e63"/>
+            <rect x="25" y="10" width="10" height="46" rx="2" fill="#ffd700"/>
+            <rect x="18" y="6" width="24" height="14" rx="4" fill="#ffd700" stroke="rgba(255,200,0,0.5)" stroke-width="1"/>
+            <circle cx="22" cy="12" r="3" fill="#fff9c4"/>
+            <circle cx="38" cy="12" r="3" fill="#fff9c4"/>
+        </svg>
     </div>
 
     <script>
@@ -513,7 +670,6 @@
             const monthSelect = document.getElementById('monthSelect');
             const yearSelect = document.getElementById('yearSelect');
 
-            // الأيام 1-31
             for (let i = 1; i <= 31; i++) {
                 const option = document.createElement('option');
                 option.value = i;
@@ -521,16 +677,16 @@
                 daySelect.appendChild(option);
             }
 
-            // الأشهر 1-12
-            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر',
+                'نوفمبر', 'ديسمبر'
+            ];
             for (let i = 1; i <= 12; i++) {
                 const option = document.createElement('option');
                 option.value = i;
-                option.textContent = i + ' - ' + monthNames[i-1];
+                option.textContent = i + ' - ' + monthNames[i - 1];
                 monthSelect.appendChild(option);
             }
 
-            // السنوات من 1995 إلى 2020
             for (let i = 1995; i <= 2020; i++) {
                 const option = document.createElement('option');
                 option.value = i;
@@ -553,7 +709,8 @@
                 particle.style.left = Math.random() * 100 + '%';
                 particle.style.animationDuration = (Math.random() * 12 + 8) + 's';
                 particle.style.animationDelay = Math.random() * 10 + 's';
-                particle.style.background = `rgba(255, ${Math.floor(Math.random()*150+100)}, ${Math.floor(Math.random()*150+100)}, ${Math.random()*0.6+0.2})`;
+                particle.style.background =
+                    `rgba(255, ${Math.floor(Math.random()*150+100)}, ${Math.floor(Math.random()*150+100)}, ${Math.random()*0.6+0.2})`;
                 container.appendChild(particle);
             }
         }
@@ -575,7 +732,6 @@
             }
 
             if (day === CORRECT_DAY && month === CORRECT_MONTH && year === CORRECT_YEAR) {
-                // نجاح تسجيل الدخول
                 showWelcomeToast();
                 setTimeout(() => {
                     switchToCelebration();
@@ -584,7 +740,6 @@
                 errorMsg.textContent = 'التاريخ غير صحيح، حاولي مرة أخرى';
                 errorMsg.classList.add('show');
                 setTimeout(() => errorMsg.classList.remove('show'), 2500);
-                // رجة خفيفة للحقل
                 const loginContainer = document.querySelector('.login-container');
                 loginContainer.style.animation = 'none';
                 loginContainer.offsetHeight;
@@ -592,7 +747,6 @@
             }
         }
 
-        // أنيميشن الرجة
         const styleSheet = document.createElement('style');
         styleSheet.textContent = `
             @keyframes shake {
@@ -625,49 +779,86 @@
             launchBalloons();
             startColorChanging();
             launchRandomFireworks();
+            spawnGifts();
         }
 
-        // بالونات ملونة
+        // بالونات SVG
         function launchBalloons() {
             const container = document.getElementById('celebrationPage');
-            const balloonEmojis = ['🎈', '🎈', '🎈', '🎀', '🎊', '🎉', '💝', '💖', '✨', '🌟', '💐', '🌷', '🎁'];
+            const balloonTypes = ['balloonHeart', 'balloonRound'];
 
             function createBalloon() {
-                const balloon = document.createElement('span');
-                balloon.classList.add('balloon');
-                balloon.textContent = balloonEmojis[Math.floor(Math.random() * balloonEmojis.length)];
-                balloon.style.left = Math.random() * 90 + '%';
-                balloon.style.fontSize = (Math.random() * 40 + 30) + 'px';
-                balloon.style.animationDuration = (Math.random() * 8 + 10) + 's';
-                balloon.style.animationDelay = '0s';
-                container.appendChild(balloon);
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('balloon-wrapper');
+                wrapper.style.left = Math.random() * 90 + '%';
+                wrapper.style.animationDuration = (Math.random() * 8 + 10) + 's';
+
+                // استنساخ SVG البالون
+                const svgId = balloonTypes[Math.floor(Math.random() * balloonTypes.length)];
+                const originalSvg = document.getElementById(svgId);
+                const svgClone = originalSvg.cloneNode(true);
+                svgClone.removeAttribute('id');
+                svgClone.style.width = (Math.random() * 30 + 45) + 'px';
+                svgClone.style.height = 'auto';
+
+                wrapper.appendChild(svgClone);
+                container.appendChild(wrapper);
 
                 setTimeout(() => {
-                    if (balloon.parentNode) balloon.remove();
+                    if (wrapper.parentNode) wrapper.remove();
                 }, 18000);
             }
 
-            // إنشاء بالونات بشكل متكرر
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 12; i++) {
                 setTimeout(createBalloon, i * 400);
             }
-            setInterval(createBalloon, 1800);
+            setInterval(createBalloon, 2000);
         }
 
-        // تغيير ألوان الخلفية بسرعة
+        // هدايا SVG متناثرة
+        function spawnGifts() {
+            const container = document.getElementById('celebrationPage');
+
+            function createGift() {
+                const gift = document.createElement('div');
+                gift.classList.add('gift-icon');
+                gift.style.left = Math.random() * 90 + '%';
+                gift.style.top = Math.random() * 80 + '%';
+
+                const originalGift = document.getElementById('giftBox');
+                const giftClone = originalGift.cloneNode(true);
+                giftClone.removeAttribute('id');
+                giftClone.style.width = (Math.random() * 25 + 35) + 'px';
+                giftClone.style.height = 'auto';
+
+                gift.appendChild(giftClone);
+                container.appendChild(gift);
+
+                setTimeout(() => {
+                    if (gift.parentNode) gift.remove();
+                }, 1800);
+            }
+
+            setInterval(createGift, 2200);
+            for (let i = 0; i < 6; i++) {
+                setTimeout(createGift, i * 500);
+            }
+        }
+
+        // تغيير ألوان الخلفية
         function startColorChanging() {
             const overlay = document.getElementById('colorOverlay');
             const colors = [
-                'rgba(255, 100, 150, 0.15)',
-                'rgba(255, 180, 100, 0.15)',
-                'rgba(255, 220, 100, 0.15)',
-                'rgba(100, 200, 255, 0.15)',
-                'rgba(200, 100, 255, 0.15)',
-                'rgba(255, 150, 200, 0.15)',
-                'rgba(150, 255, 200, 0.15)',
-                'rgba(255, 100, 100, 0.15)',
-                'rgba(100, 255, 150, 0.15)',
-                'rgba(255, 200, 150, 0.15)',
+                'rgba(255, 100, 150, 0.12)',
+                'rgba(255, 180, 100, 0.12)',
+                'rgba(255, 220, 100, 0.12)',
+                'rgba(100, 200, 255, 0.12)',
+                'rgba(200, 100, 255, 0.12)',
+                'rgba(255, 150, 200, 0.12)',
+                'rgba(150, 255, 200, 0.12)',
+                'rgba(255, 100, 100, 0.12)',
+                'rgba(100, 255, 150, 0.12)',
+                'rgba(255, 200, 150, 0.12)',
             ];
             let index = 0;
             setInterval(() => {
@@ -676,7 +867,7 @@
             }, 700);
         }
 
-        // مفرقعات نارية
+        // مفرقعات
         function launchRandomFireworks() {
             setInterval(() => {
                 createFirework(
@@ -688,7 +879,8 @@
 
         function createFirework(x, y) {
             const container = document.getElementById('celebrationPage');
-            const colors = ['#ff6b9d', '#ff9a9e', '#fad0c4', '#ffd700', '#ff6347', '#7bff7b', '#7bb3ff', '#ff7bff', '#ffff7b'];
+            const colors = ['#ff6b9d', '#ff9a9e', '#fad0c4', '#ffd700', '#ff6347', '#7bff7b', '#7bb3ff', '#ff7bff',
+            '#ffff7b'];
             const particleCount = 25;
 
             for (let i = 0; i < particleCount; i++) {
@@ -716,9 +908,9 @@
             }
         }
 
-        // مفرقعات عند النقر في أي مكان بصفحة الاحتفال
         document.getElementById('celebrationPage').addEventListener('click', function(e) {
-            if (e.target.id === 'revealBtn' || e.target.closest('#roseContainer')) return;
+            if (e.target.id === 'revealBtn' || e.target.closest('#roseContainer') || e.target.closest('button'))
+        return;
             createFirework(e.clientX, e.clientY);
         });
 
@@ -728,43 +920,57 @@
             const messageInside = document.getElementById('messageInside');
             const revealBtn = document.getElementById('revealBtn');
 
-            if (roseEmoji.classList.contains('rose-bloom')) return; // بالفعل ظاهرة
+            if (roseEmoji.classList.contains('rose-bloom')) return;
 
-            // إخفاء الزر
             revealBtn.style.opacity = '0';
             revealBtn.style.pointerEvents = 'none';
             revealBtn.style.transition = 'opacity 0.5s ease';
 
-            // تفجير وردة صغير
             const btnRect = revealBtn.getBoundingClientRect();
             const centerX = btnRect.left + btnRect.width / 2;
             const centerY = btnRect.top + btnRect.height / 2;
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 5; i++) {
                 setTimeout(() => {
-                    createFirework(centerX + (Math.random()-0.5)*100, centerY + (Math.random()-0.5)*60);
-                }, i * 150);
+                    createFirework(centerX + (Math.random() - 0.5) * 150, centerY + (Math.random() - 0.5) *
+                        100);
+                }, i * 120);
             }
 
-            // ظهور الوردة بعد لحظة
             setTimeout(() => {
                 roseEmoji.classList.add('rose-bloom');
-                // إظهار الرسالة بعد الوردة
                 setTimeout(() => {
                     messageInside.classList.add('show');
-                    // مفرقعات إضافية احتفالية
-                    for (let i = 0; i < 5; i++) {
+                    for (let i = 0; i < 8; i++) {
                         setTimeout(() => {
                             createFirework(
                                 Math.random() * window.innerWidth,
                                 Math.random() * window.innerHeight * 0.6
                             );
-                        }, i * 200);
+                        }, i * 180);
+                    }
+                    // هدايا إضافية عند ظهور الرسالة
+                    for (let i = 0; i < 5; i++) {
+                        setTimeout(() => {
+                            const container = document.getElementById('celebrationPage');
+                            const gift = document.createElement('div');
+                            gift.classList.add('gift-icon');
+                            gift.style.left = Math.random() * 90 + '%';
+                            gift.style.top = Math.random() * 70 + '%';
+                            const originalGift = document.getElementById('giftBox');
+                            const giftClone = originalGift.cloneNode(true);
+                            giftClone.removeAttribute('id');
+                            giftClone.style.width = (Math.random() * 30 + 40) + 'px';
+                            giftClone.style.height = 'auto';
+                            gift.appendChild(giftClone);
+                            container.appendChild(gift);
+                            setTimeout(() => { if (gift.parentNode) gift.remove(); }, 2000);
+                        }, i * 250);
                     }
                 }, 700);
             }, 300);
         }
 
-        // ============ معالجة ضغط Enter ============
+        // Enter key
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const loginPage = document.getElementById('loginPage');
