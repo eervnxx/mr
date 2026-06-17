@@ -325,7 +325,7 @@
                 </div>
                 <div class="f-group"><label data-lang="nameLabel">📝 اسم الصنف</label><input type="text" id="itemName" placeholder="برجر دجاج"></div>
                 <div class="f-row">
-                    <div class="f-group"><label data-lang="catLabel">📂 تصنيف</label><select id="itemCat"><option>وجبات سريعة</option><option>اراكيل</option><option>حلويات</option><option>عصائر طبيعية</option><option>مشروبات باردة </option><option>مشروبات ساخنه</option><option>مقبلات </option><option>بيتزا </option><option>بركر </option><option>ريزو </option><option>ايس كريم </option><option>كوكتيلات </option><option>موهيتو </option><option>فرابتشينو </option><option>ميلك شيلك </option></select></div>
+                    <div class="f-group"><label data-lang="catLabel">📂 تصنيف</label><select id="itemCat"><option>وجبات سريعة</option><option>اراكيل</option><option>حلويات</option><option>عصائر طبيعية</option><option>مشروبات باردة</option><option>مشروبات ساخنه</option><option>مقبلات</option><option>بيتزا</option><option>بركر</option><option>ريزو</option><option>ايس كريم</option><option>كوكتيلات</option><option>موهيتو</option><option>فرابتشينو</option><option>ميلك شيلك</option></select></div>
                     <div class="f-group"><label data-lang="priceLabel">💰 سعر</label><input type="number" id="itemPrice" placeholder="25" step="0.01"></div>
                 </div>
                 <div class="f-group"><label data-lang="descLabel">📄 وصف</label><textarea id="itemDesc" placeholder="وصف مختصر..."></textarea></div>
@@ -372,7 +372,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore().collection('menuItems');
 
-        let items = [], cat = 'الكل', file = null;
+        let items = [], cat = 'all', file = null;
 
         function applyDarkMode() {
             if (isDark) { document.body.classList.remove('light-mode'); document.getElementById('darkToggle').classList.add('on'); }
@@ -441,10 +441,17 @@
             const b = document.getElementById('catBar'), q = document.getElementById('searchInput').value.toLowerCase();
             if (!items.length) { g.innerHTML = ''; e.style.display = 'block'; b.innerHTML = ''; return; }
             e.style.display = 'none';
+            
             const allCats = [t('all'), ...new Set(items.map(i => i.category || 'بدون'))];
-            b.innerHTML = allCats.map(c => `<button class="cat-btn ${c===cat?'active':''}" onclick="cat='${c}';showMenu();">${c}</button>`).join('');
-            let f = items; if (cat !== t('all')) f = f.filter(i => (i.category||'بدون') === cat);
+            
+            b.innerHTML = allCats.map(c => {
+                return `<button class="cat-btn ${c === cat ? 'active' : ''}" onclick="cat='${c}';showMenu();">${c}</button>`;
+            }).join('');
+            
+            let f = items;
+            if (cat !== 'all' && cat !== t('all')) f = f.filter(i => (i.category || 'بدون') === cat);
             if (q) f = f.filter(i => (i.name||'').toLowerCase().includes(q) || (i.description||'').toLowerCase().includes(q));
+            
             if (!f.length) { g.innerHTML = ''; e.style.display = 'block'; }
             else g.innerHTML = f.map((i,idx) => `<div class="card ${!i.available?'off':''}" style="animation-delay:${idx*0.06}s"><div class="card-img-wrap"><img src="${i.image||'https://placehold.co/400x250/1a1a35/666'}" onerror="this.src='https://placehold.co/400x250/1a1a35/666'"><div class="card-img-overlay"></div><div class="card-cat">${i.category||''}</div><div class="card-badge ${i.available?'badge-on':'badge-off'}">${i.available?t('available'):t('unavailable')}</div></div><div class="card-body"><h3>${i.name}</h3><p>${i.description||''}</p><div class="card-foot"><span class="price price-gradient">${i.price||0} ${t('currency')}</span></div></div></div>`).join('');
         }
@@ -467,7 +474,7 @@
         function editItem(fid) {
             const i = items.find(x => x.fid === fid); if (!i) return;
             document.getElementById('editId').value = fid; document.getElementById('itemName').value = i.name || '';
-            document.getElementById('itemCat').value = i.category || t('categories')[0]; document.getElementById('itemDesc').value = i.description || '';
+            document.getElementById('itemCat').value = i.category || 'وجبات سريعة'; document.getElementById('itemDesc').value = i.description || '';
             document.getElementById('itemPrice').value = i.price || ''; if (i.image?.startsWith('http')) { document.getElementById('previewImg').src = i.image; document.getElementById('previewImg').style.display = 'block'; }
             file = null; document.getElementById('formTitle').textContent = t('formTitleEdit') + i.name;
             document.getElementById('btnAdd').style.display = 'none'; document.getElementById('btnUpdate').style.display = 'block';
@@ -488,7 +495,7 @@
 
         function resetForm() {
             document.getElementById('editId').value = ''; document.getElementById('itemName').value = '';
-            document.getElementById('itemCat').value = t('categories')[0]; document.getElementById('itemDesc').value = '';
+            document.getElementById('itemCat').value = 'وجبات سريعة'; document.getElementById('itemDesc').value = '';
             document.getElementById('itemPrice').value = ''; document.getElementById('previewImg').style.display = 'none';
             document.getElementById('fileInput').value = ''; document.getElementById('progBar').style.display = 'none'; file = null;
             const fb = document.getElementById('fileBox'); fb.classList.remove('ok'); fb.querySelector('.ftxt').textContent = t('uploadText'); fb.querySelector('.fico').textContent = '📁';
