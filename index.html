@@ -3,982 +3,700 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فاطمة - الدخول</title>
+    <title>منيو المطعم | Restaurant Menu</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #ff4757;
+            --secondary: #ffa502;
+            --accent: #2ed573;
+            --dark: #1e1e2e;
+            --darker: #16162a;
+            --card-bg: rgba(30, 30, 50, 0.8);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+            --text-secondary: #b0b0c0;
+            --gradient-1: linear-gradient(135deg, #ff4757, #ff6b81);
+            --gradient-2: linear-gradient(135deg, #ffa502, #ff6348);
+            --gradient-bg: linear-gradient(135deg, #0c0c1d 0%, #1a1a35 50%, #0f0f25 100%);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--gradient-bg);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            color: var(--text);
             overflow-x: hidden;
-            transition: all 0.5s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* ========== صفحة تسجيل الدخول ========== */
-        .login-container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 50px 40px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-            width: 440px;
-            max-width: 90%;
-            text-align: center;
-            animation: floatIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            z-index: 10;
+        .bg-particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+
+        .particle { position: absolute; border-radius: 50%; background: var(--primary); animation: float linear infinite; opacity: 0.15; }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.15; }
+            90% { opacity: 0.15; }
+            100% { transform: translateY(-100vh) scale(1); opacity: 0; }
         }
 
-        @keyframes floatIn {
-            0% {
-                opacity: 0;
-                transform: translateY(40px) scale(0.95);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        .header { position: sticky; top: 0; z-index: 100; background: rgba(14,14,30,0.7); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); border-bottom: 1px solid var(--glass-border); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+
+        .logo-container { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 42px; height: 42px; background: var(--gradient-1); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 15px rgba(255,71,87,0.4); animation: pulse 2s ease-in-out infinite; }
+
+        @keyframes pulse { 0%,100% { box-shadow: 0 4px 15px rgba(255,71,87,0.4); } 50% { box-shadow: 0 4px 30px rgba(255,71,87,0.7); } }
+
+        .logo-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+        .logo-text .accent { background: var(--gradient-2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-actions { display: flex; gap: 8px; }
+
+        .btn-icon-header { width: 40px; height: 40px; border-radius: 14px; background: var(--glass); border: 1px solid var(--glass-border); color: var(--text); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+        .btn-icon-header:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
+
+        .btn-admin { background: var(--gradient-1); border: none; color: white; padding: 10px 18px; border-radius: 14px; cursor: pointer; font-size: 14px; font-weight: 600; transition: var(--transition); box-shadow: 0 4px 15px rgba(255,71,87,0.3); white-space: nowrap; }
+        .btn-admin:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255,71,87,0.5); }
+        .btn-admin:active { transform: scale(0.95); }
+
+        .main-content { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 20px 16px 80px; }
+        .hero-section { text-align: center; padding: 30px 0 20px; }
+        .hero-badge { display: inline-block; background: var(--glass); border: 1px solid var(--glass-border); padding: 6px 16px; border-radius: 50px; font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+        .hero-title { font-size: clamp(28px,7vw,48px); font-weight: 900; margin-bottom: 6px; letter-spacing: -1px; line-height: 1.2; }
+        .hero-title .highlight { background: var(--gradient-2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-subtitle { color: var(--text-secondary); font-size: clamp(14px,3vw,17px); }
+
+        .search-wrapper { position: relative; max-width: 500px; margin: 20px auto 0; }
+        .search-input { width: 100%; padding: 16px 50px 16px 20px; border-radius: 20px; background: var(--glass); border: 1px solid var(--glass-border); color: var(--text); font-size: 16px; outline: none; transition: var(--transition); }
+        .search-input::placeholder { color: var(--text-secondary); }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255,71,87,0.15); background: rgba(255,255,255,0.08); }
+        .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 18px; pointer-events: none; }
+
+        .categories-wrapper { display: flex; gap: 10px; padding: 20px 0; overflow-x: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; justify-content: center; flex-wrap: wrap; }
+        .categories-wrapper::-webkit-scrollbar { display: none; }
+
+        .category-chip { flex-shrink: 0; padding: 10px 22px; border-radius: 50px; background: var(--glass); border: 1px solid var(--glass-border); color: var(--text-secondary); cursor: pointer; font-size: 14px; font-weight: 500; transition: var(--transition); white-space: nowrap; }
+        .category-chip:hover { background: rgba(255,255,255,0.1); color: var(--text); transform: translateY(-2px); }
+        .category-chip.active { background: var(--gradient-1); border-color: transparent; color: white; box-shadow: 0 4px 20px rgba(255,71,87,0.4); font-weight: 600; }
+
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; padding: 10px 0; }
+
+        .menu-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); overflow: hidden; transition: var(--transition); backdrop-filter: blur(20px); animation: cardAppear 0.5s ease forwards; opacity: 0; cursor: pointer; position: relative; }
+
+        @keyframes cardAppear { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .menu-card:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(0,0,0,0.6); border-color: rgba(255,255,255,0.2); }
+        .menu-card:active { transform: scale(0.97); }
+
+        .card-image-wrapper { position: relative; width: 100%; height: 200px; overflow: hidden; background: rgba(0,0,0,0.3); }
+        .card-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .menu-card:hover .card-image { transform: scale(1.08); }
+        .card-image-overlay { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+
+        .card-badge { position: absolute; top: 12px; right: 12px; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 700; backdrop-filter: blur(20px); }
+        .badge-available { background: rgba(46,213,115,0.3); color: #7bed9f; border: 1px solid rgba(46,213,115,0.4); }
+        .badge-unavailable { background: rgba(255,71,87,0.3); color: #ff6b81; border: 1px solid rgba(255,71,87,0.4); }
+
+        .card-category-tag { position: absolute; top: 12px; left: 12px; padding: 5px 12px; border-radius: 50px; background: rgba(0,0,0,0.5); backdrop-filter: blur(20px); font-size: 11px; color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.15); }
+        .card-body { padding: 18px; }
+        .card-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+        .card-description { color: var(--text-secondary); font-size: 13px; line-height: 1.6; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; }
+        .card-price { font-size: 26px; font-weight: 800; background: var(--gradient-2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .card-price-currency { font-size: 13px; font-weight: 400; color: var(--text-secondary); -webkit-text-fill-color: var(--text-secondary); }
+        .card-unavailable { opacity: 0.5; filter: grayscale(40%); }
+        .card-unavailable:hover { opacity: 0.7; }
+
+        .empty-state { text-align: center; padding: 60px 20px; display: none; }
+        .empty-state-icon { font-size: 70px; margin-bottom: 16px; animation: bounce 2s ease-in-out infinite; }
+        @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .empty-state-text { color: var(--text-secondary); font-size: 18px; }
+
+        .loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; }
+        .loading-spinner { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: var(--text-secondary); font-size: 15px; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+
+        .modal-dialog { background: var(--dark); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 35px 25px; text-align: center; width: 100%; max-width: 400px; animation: modalIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+        @keyframes modalIn { from { transform: scale(0.8) translateY(30px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+
+        .modal-icon { font-size: 50px; margin-bottom: 16px; }
+        .modal-title { font-size: 22px; font-weight: 700; margin-bottom: 20px; }
+
+        .modal-input { width: 100%; padding: 15px 18px; border-radius: var(--radius-sm); background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text); font-size: 16px; text-align: center; outline: none; transition: var(--transition); margin-bottom: 14px; }
+        .modal-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255,71,87,0.1); }
+        .modal-input::placeholder { color: rgba(255,255,255,0.3); }
+
+        .btn { padding: 14px 28px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; border: none; transition: var(--transition); width: 100%; margin-top: 6px; }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: var(--gradient-1); color: white; box-shadow: 0 4px 20px rgba(255,71,87,0.3); }
+        .btn-primary:hover { box-shadow: 0 8px 30px rgba(255,71,87,0.5); transform: translateY(-2px); }
+        .btn-ghost { background: var(--glass); color: var(--text-secondary); border: 1px solid var(--glass-border); }
+        .btn-ghost:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+        .error-text { color: var(--primary); font-size: 13px; margin-top: 8px; display: none; }
+
+        .admin-panel { display: none; position: fixed; inset: 0; background: var(--darker); z-index: 999; overflow-y: auto; animation: fadeIn 0.3s ease; }
+        .admin-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .admin-inner { max-width: 800px; margin: 0 auto; padding: 16px; }
+        .admin-navbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: rgba(255,255,255,0.03); border-radius: var(--radius-md); margin-bottom: 20px; border: 1px solid var(--glass-border); position: sticky; top: 10px; z-index: 10; backdrop-filter: blur(20px); gap: 12px; flex-wrap: wrap; }
+        .admin-navbar h2 { font-size: 18px; font-weight: 700; }
+        .btn-close-admin { background: rgba(255,71,87,0.2); color: var(--primary); border: 1px solid rgba(255,71,87,0.3); padding: 10px 18px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: var(--transition); }
+        .btn-close-admin:hover { background: rgba(255,71,87,0.4); }
+
+        .admin-card { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 20px; }
+        .admin-card h3 { margin-bottom: 16px; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+
+        .form-group { margin-bottom: 14px; }
+        .form-label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 13px 16px; border-radius: var(--radius-sm); background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text); font-size: 15px; font-family: inherit; outline: none; transition: var(--transition); }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255,71,87,0.1); }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-select { cursor: pointer; }
+        .form-select option { background: var(--dark); color: var(--text); }
+
+        .toggle-wrapper { display: flex; align-items: center; gap: 12px; }
+        .toggle { position: relative; width: 52px; height: 28px; background: rgba(255,255,255,0.1); border-radius: 50px; cursor: pointer; transition: var(--transition); border: 1px solid var(--glass-border); }
+        .toggle.active { background: var(--accent); border-color: var(--accent); }
+        .toggle::after { content: ''; position: absolute; width: 22px; height: 22px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: var(--transition); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .toggle.active::after { left: 26px; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+        .btn-sm { padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; transition: var(--transition); flex: 1; min-width: 100px; }
+        .btn-sm:active { transform: scale(0.95); }
+        .btn-add-item { background: var(--accent); color: #000; }
+        .btn-add-item:hover { box-shadow: 0 4px 20px rgba(46,213,115,0.4); }
+        .btn-update-item { background: var(--secondary); color: #000; }
+        .btn-update-item:hover { box-shadow: 0 4px 20px rgba(255,165,2,0.4); }
+        .btn-reset-form { background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--glass-border); }
+
+        .items-list-header { display: grid; grid-template-columns: 50px 1fr 70px 90px; gap: 8px; padding: 12px 16px; font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--glass-border); }
+
+        .item-row { display: grid; grid-template-columns: 50px 1fr 70px 90px; gap: 8px; padding: 12px 16px; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.03); transition: var(--transition); animation: slideRow 0.3s ease; }
+        @keyframes slideRow { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .item-row:hover { background: rgba(255,255,255,0.03); }
+        .item-thumb { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; }
+        .item-info h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+        .item-info span { font-size: 11px; color: var(--text-secondary); }
+        .item-price-cell { font-weight: 700; color: var(--secondary); }
+        .item-actions { display: flex; gap: 4px; }
+
+        .btn-icon-sm { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--glass); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+        .btn-icon-sm:hover { transform: scale(1.1); }
+        .btn-edit-sm { color: var(--secondary); border-color: rgba(255,165,2,0.3); background: rgba(255,165,2,0.1); }
+        .btn-delete-sm { color: var(--primary); border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.1); }
+
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--dark); border: 1px solid var(--glass-border); color: white; padding: 14px 24px; border-radius: 50px; z-index: 2000; font-size: 14px; font-weight: 600; box-shadow: 0 20px 60px rgba(0,0,0,0.6); transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); backdrop-filter: blur(20px); white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.success { border-color: var(--accent); }
+        .toast.error { border-color: var(--primary); }
+
+        @media (max-width: 768px) {
+            .menu-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+            .form-row { grid-template-columns: 1fr; }
+            .items-list-header, .item-row { grid-template-columns: 40px 1fr 55px 75px; }
+            .card-image-wrapper { height: 170px; }
+            .card-title { font-size: 17px; }
+            .card-price { font-size: 22px; }
+            .admin-inner { padding: 10px; }
+            .admin-navbar { padding: 12px 16px; gap: 8px; }
         }
 
-        .login-icon {
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .login-icon svg {
-            width: 80px;
-            height: 80px;
-            filter: drop-shadow(0 8px 20px rgba(255, 100, 150, 0.5));
-            animation: gentlePulse 2.5s infinite;
-        }
-
-        @keyframes gentlePulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.08);
-            }
-        }
-
-        .login-title {
-            color: #fff;
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-        }
-
-        .login-subtitle {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            margin-bottom: 35px;
-            font-weight: 300;
-        }
-
-        .date-fields {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .date-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .date-group label {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .date-group select {
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 14px;
-            padding: 14px 18px;
-            font-size: 18px;
-            color: #fff;
-            cursor: pointer;
-            outline: none;
-            transition: all 0.3s ease;
-            min-width: 100px;
-            text-align: center;
-            appearance: none;
-            -webkit-appearance: none;
-            font-weight: 600;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: left 12px center;
-            padding-left: 35px;
-        }
-
-        .date-group select:hover {
-            border-color: rgba(255, 100, 150, 0.6);
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .date-group select:focus {
-            border-color: #ff6b9d;
-            box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.2);
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .date-group select option {
-            background: #1a1a2e;
-            color: #fff;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #ff6b9d, #c44569);
-            color: #fff;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            letter-spacing: 2px;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
-            margin-top: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(255, 107, 157, 0.6);
-            background: linear-gradient(135deg, #ff7eb3, #e55073);
-        }
-
-        .login-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 5px 20px rgba(255, 107, 157, 0.4);
-        }
-
-        .error-msg {
-            color: #ff6b6b;
-            font-size: 13px;
-            margin-top: 18px;
-            min-height: 20px;
-            font-weight: 500;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-
-        .error-msg.show {
-            opacity: 1;
-        }
-
-        .particles-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            animation: floatUp linear infinite;
-            opacity: 0;
-        }
-
-        @keyframes floatUp {
-            0% {
-                transform: translateY(100vh) scale(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-10vh) scale(1.5);
-                opacity: 0;
-            }
-        }
-
-        /* ========== صفحة الاحتفال ========== */
-        .celebration-page {
-            display: none;
-            width: 100%;
-            min-height: 100vh;
-            position: relative;
-            overflow: hidden;
-            background: #0a0a1a;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            z-index: 1;
-        }
-
-        .celebration-page.active {
-            display: flex;
-        }
-
-        .login-page {
-            display: flex;
-            width: 100%;
-            min-height: 100vh;
-            position: relative;
-            z-index: 1;
-        }
-
-        .login-page.hidden {
-            display: none;
-        }
-
-        .color-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            transition: background-color 0.4s ease;
-        }
-
-        .firework {
-            position: absolute;
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        .firework-particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            animation: fireworkBurst 1.2s ease-out forwards;
-        }
-
-        @keyframes fireworkBurst {
-            0% {
-                transform: translate(0, 0) scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(var(--tx), var(--ty)) scale(0);
-                opacity: 0;
-            }
-        }
-
-        /* بالونات SVG */
-        .balloon-wrapper {
-            position: absolute;
-            bottom: -200px;
-            animation: balloonFloat linear infinite;
-            pointer-events: none;
-            z-index: 4;
-            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
-        }
-
-        @keyframes balloonFloat {
-            0% {
-                bottom: -200px;
-                transform: translateX(0) rotate(0deg);
-                opacity: 0.9;
-            }
-            25% {
-                transform: translateX(40px) rotate(5deg);
-            }
-            50% {
-                transform: translateX(-30px) rotate(-4deg);
-            }
-            75% {
-                transform: translateX(20px) rotate(3deg);
-            }
-            100% {
-                bottom: 110vh;
-                transform: translateX(0) rotate(0deg);
-                opacity: 0.3;
-            }
-        }
-
-        .reveal-btn {
-            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #fad0c4 100%);
-            border: none;
-            padding: 22px 50px;
-            border-radius: 50px;
-            font-size: 22px;
-            font-weight: 700;
-            color: #1a1a2e;
-            cursor: pointer;
-            letter-spacing: 2px;
-            box-shadow: 0 15px 40px rgba(255, 154, 158, 0.5);
-            transition: all 0.3s ease;
-            z-index: 20;
-            position: relative;
-            animation: gentlePulse 2.5s infinite;
-            margin-top: 30px;
-        }
-
-        .reveal-btn:hover {
-            transform: scale(1.07);
-            box-shadow: 0 20px 50px rgba(255, 154, 158, 0.7);
-        }
-
-        .rose-container {
-            position: relative;
-            z-index: 15;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 30px;
-        }
-
-        .rose-hidden {
-            transform: scale(0);
-            opacity: 0;
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            filter: drop-shadow(0 0 30px rgba(255, 100, 100, 0.6));
-        }
-
-        .rose-bloom {
-            transform: scale(1);
-            opacity: 1;
-            animation: roseGrow 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            filter: drop-shadow(0 0 50px rgba(255, 100, 100, 0.8));
-        }
-
-        @keyframes roseGrow {
-            0% {
-                transform: scale(0) rotate(-30deg);
-                opacity: 0;
-            }
-            50% {
-                transform: scale(1.3) rotate(5deg);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1) rotate(0deg);
-                opacity: 1;
-            }
-        }
-
-        .message-inside {
-            color: #fff;
-            font-size: 28px;
-            font-weight: 700;
-            margin-top: 25px;
-            opacity: 0;
-            transition: all 0.8s ease 0.5s;
-            text-shadow: 0 0 30px rgba(255, 200, 200, 0.8);
-            letter-spacing: 2px;
-        }
-
-        .message-inside.show {
-            opacity: 1;
-            animation: textGlow 2s infinite alternate;
-        }
-
-        @keyframes textGlow {
-            0% {
-                text-shadow: 0 0 20px rgba(255, 150, 150, 0.6);
-            }
-            100% {
-                text-shadow: 0 0 50px rgba(255, 100, 150, 1), 0 0 80px rgba(255, 150, 150, 0.8);
-            }
-        }
-
-        .welcome-toast {
-            position: fixed;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-120px);
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-            padding: 16px 35px;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 600;
-            z-index: 1000;
-            letter-spacing: 1px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            white-space: nowrap;
-        }
-
-        .welcome-toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* هدايا SVG صغيرة متناثرة */
-        .gift-icon {
-            position: absolute;
-            pointer-events: none;
-            z-index: 6;
-            animation: giftPop 1.5s ease-out forwards;
-            filter: drop-shadow(0 5px 15px rgba(255, 200, 0, 0.6));
-        }
-
-        @keyframes giftPop {
-            0% {
-                transform: scale(0) rotate(0deg);
-                opacity: 0;
-            }
-            30% {
-                transform: scale(1.4) rotate(15deg);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(0.8) rotate(-10deg) translateY(-80px);
-                opacity: 0;
-            }
-        }
-
-        @media (max-width: 500px) {
-            .login-container {
-                padding: 35px 25px;
-            }
-            .date-group select {
-                padding: 10px 12px;
-                font-size: 16px;
-                min-width: 75px;
-            }
-            .reveal-btn {
-                padding: 16px 30px;
-                font-size: 18px;
-            }
-            .message-inside {
-                font-size: 22px;
-            }
-            .rose-hidden svg {
-                width: 140px;
-                height: 140px;
-            }
+        @media (max-width: 480px) {
+            .menu-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .card-image-wrapper { height: 130px; }
+            .card-body { padding: 12px; }
+            .card-title { font-size: 15px; }
+            .card-description { font-size: 11px; -webkit-line-clamp: 2; }
+            .card-price { font-size: 19px; }
+            .card-badge, .card-category-tag { font-size: 10px; padding: 4px 10px; }
+            .header { padding: 10px 12px; }
+            .logo-text { font-size: 18px; }
+            .btn-admin { padding: 8px 14px; font-size: 13px; }
+            .category-chip { padding: 8px 16px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Toast رسالة ترحيبية -->
-    <div class="welcome-toast" id="welcomeToast">🎀 تم تسجيل الدخول بنجاح، أهلاً بكِ يا فاطمة 🎀</div>
+    <div class="bg-particles" id="particles"></div>
 
-    <!-- خلفية الجسيمات المتحركة -->
-    <div class="particles-bg" id="particlesBg"></div>
+    <header class="header" id="header">
+        <div class="logo-container">
+            <div class="logo-icon">🍽️</div>
+            <div class="logo-text">مـ<span class="accent">نيو</span></div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-icon-header" onclick="loadMenuFromFirebase()" title="تحديث">🔄</button>
+            <button class="btn-admin" onclick="openPasswordModal()">🔐 الإدارة</button>
+        </div>
+    </header>
 
-    <!-- طبقة الألوان المتغيرة في صفحة الاحتفال -->
-    <div class="color-overlay" id="colorOverlay"></div>
+    <main class="main-content">
+        <div class="hero-section">
+            <div class="hero-badge">✨ قائمة طعام مميزة</div>
+            <h1 class="hero-title">أشهى <span class="highlight">المأكولات</span></h1>
+            <p class="hero-subtitle">اكتشف مجموعتنا المختارة بعناية</p>
+        </div>
 
-    <!-- ==================== صفحة تسجيل الدخول ==================== -->
-    <div class="login-page" id="loginPage">
-        <div class="login-container">
-            <div class="login-icon">
-                <!-- ستيكر وردة جميل -->
-                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <radialGradient id="roseGrad1" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#ff7eb3"/>
-                            <stop offset="100%" stop-color="#c44569"/>
-                        </radialGradient>
-                        <radialGradient id="roseGrad2" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#ff9a9e"/>
-                            <stop offset="100%" stop-color="#e55073"/>
-                        </radialGradient>
-                    </defs>
-                    <!-- البتلات الخارجية -->
-                    <circle cx="50" cy="30" r="22" fill="url(#roseGrad1)" opacity="0.9"/>
-                    <circle cx="30" cy="50" r="22" fill="url(#roseGrad1)" opacity="0.9"/>
-                    <circle cx="70" cy="50" r="22" fill="url(#roseGrad1)" opacity="0.9"/>
-                    <circle cx="40" cy="70" r="22" fill="url(#roseGrad1)" opacity="0.9"/>
-                    <circle cx="60" cy="70" r="22" fill="url(#roseGrad1)" opacity="0.9"/>
-                    <!-- البتلات الداخلية -->
-                    <circle cx="50" cy="38" r="16" fill="url(#roseGrad2)" opacity="0.95"/>
-                    <circle cx="38" cy="52" r="16" fill="url(#roseGrad2)" opacity="0.95"/>
-                    <circle cx="62" cy="52" r="16" fill="url(#roseGrad2)" opacity="0.95"/>
-                    <!-- المركز -->
-                    <circle cx="50" cy="50" r="12" fill="#ffe066"/>
-                    <circle cx="50" cy="50" r="7" fill="#ffd700"/>
-                    <!-- ورقتان -->
-                    <ellipse cx="25" cy="75" rx="14" ry="6" fill="#4ecdc4" transform="rotate(-30 25 75)"/>
-                    <ellipse cx="75" cy="75" rx="14" ry="6" fill="#4ecdc4" transform="rotate(30 75 75)"/>
-                </svg>
-            </div>
-            <div class="login-title">مرحباً بكِ</div>
-            <div class="login-subtitle">أدخلي تاريخ ميلادكِ للمتابعة</div>
+        <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن وجبتك المفضلة..." oninput="displayMenu()">
+        </div>
 
-            <div class="date-fields">
-                <div class="date-group">
-                    <label>اليوم</label>
-                    <select id="daySelect">
-                        <option value="">--</option>
-                    </select>
-                </div>
-                <div class="date-group">
-                    <label>الشهر</label>
-                    <select id="monthSelect">
-                        <option value="">--</option>
-                    </select>
-                </div>
-                <div class="date-group">
-                    <label>السنة</label>
-                    <select id="yearSelect">
-                        <option value="">--</option>
-                    </select>
-                </div>
-            </div>
+        <div class="categories-wrapper" id="categoriesBar"></div>
 
-            <button class="login-btn" onclick="checkLogin()">✨ دخول ✨</button>
-            <div class="error-msg" id="errorMsg"></div>
+        <div class="loading-container" id="loadingSpinner">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">جاري تحميل المنيو...</p>
+        </div>
+
+        <div class="menu-grid" id="menuGrid"></div>
+
+        <div class="empty-state" id="emptyState">
+            <div class="empty-state-icon">🍽️</div>
+            <p class="empty-state-text">لا توجد أصناف متاحة حالياً</p>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal-dialog">
+            <div class="modal-icon">🔐</div>
+            <h2 class="modal-title">دخول المشرف</h2>
+            <input type="password" class="modal-input" id="passwordInput" placeholder="كلمة المرور" autocomplete="off">
+            <button class="btn btn-primary" onclick="checkPassword()">🚀 دخول</button>
+            <button class="btn btn-ghost" onclick="closePasswordModal()">إلغاء</button>
+            <p class="error-text" id="errorMsg">❌ كلمة المرور غير صحيحة</p>
         </div>
     </div>
 
-    <!-- ==================== صفحة الاحتفال ==================== -->
-    <div class="celebration-page" id="celebrationPage">
-        <button class="reveal-btn" id="revealBtn" onclick="revealRose()">🎁 اضغطي هنا 🎁</button>
-
-        <div class="rose-container" id="roseContainer">
-            <!-- ستيكر وردة كبير للاحتفال -->
-            <div class="rose-hidden" id="roseEmoji">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
-                    <defs>
-                        <radialGradient id="bigRoseGrad1" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#ff6b9d"/>
-                            <stop offset="100%" stop-color="#c44569"/>
-                        </radialGradient>
-                        <radialGradient id="bigRoseGrad2" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#ff9a9e"/>
-                            <stop offset="100%" stop-color="#e55073"/>
-                        </radialGradient>
-                        <radialGradient id="bigRoseGrad3" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#ffb3ba"/>
-                            <stop offset="100%" stop-color="#ff7eb3"/>
-                        </radialGradient>
-                        <filter id="glow">
-                            <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
-                            <feMerge>
-                                <feMergeNode in="coloredBlur"/>
-                                <feMergeNode in="SourceGraphic"/>
-                            </feMerge>
-                        </filter>
-                    </defs>
-                    <!-- بتلات خارجية كبيرة -->
-                    <circle cx="100" cy="50" r="50" fill="url(#bigRoseGrad1)" opacity="0.85" filter="url(#glow)"/>
-                    <circle cx="55" cy="90" r="50" fill="url(#bigRoseGrad1)" opacity="0.85" filter="url(#glow)"/>
-                    <circle cx="145" cy="90" r="50" fill="url(#bigRoseGrad1)" opacity="0.85" filter="url(#glow)"/>
-                    <circle cx="70" cy="130" r="50" fill="url(#bigRoseGrad1)" opacity="0.85" filter="url(#glow)"/>
-                    <circle cx="130" cy="130" r="50" fill="url(#bigRoseGrad1)" opacity="0.85" filter="url(#glow)"/>
-                    <!-- بتلات وسطى -->
-                    <circle cx="100" cy="65" r="38" fill="url(#bigRoseGrad2)" opacity="0.9"/>
-                    <circle cx="65" cy="95" r="38" fill="url(#bigRoseGrad2)" opacity="0.9"/>
-                    <circle cx="135" cy="95" r="38" fill="url(#bigRoseGrad2)" opacity="0.9"/>
-                    <circle cx="85" cy="120" r="38" fill="url(#bigRoseGrad2)" opacity="0.9"/>
-                    <circle cx="115" cy="120" r="38" fill="url(#bigRoseGrad2)" opacity="0.9"/>
-                    <!-- بتلات داخلية -->
-                    <circle cx="100" cy="80" r="26" fill="url(#bigRoseGrad3)" opacity="0.95"/>
-                    <circle cx="75" cy="100" r="26" fill="url(#bigRoseGrad3)" opacity="0.95"/>
-                    <circle cx="125" cy="100" r="26" fill="url(#bigRoseGrad3)" opacity="0.95"/>
-                    <!-- مركز الوردة -->
-                    <circle cx="100" cy="100" r="18" fill="#ffe066"/>
-                    <circle cx="100" cy="100" r="10" fill="#ffd700"/>
-                    <circle cx="100" cy="100" r="5" fill="#ffaa00"/>
-                    <!-- أوراق خضراء -->
-                    <ellipse cx="35" cy="145" rx="28" ry="12" fill="#2ecc71" transform="rotate(-35 35 145)"/>
-                    <ellipse cx="165" cy="145" rx="28" ry="12" fill="#2ecc71" transform="rotate(35 165 145)"/>
-                    <ellipse cx="50" cy="155" rx="22" ry="9" fill="#27ae60" transform="rotate(-20 50 155)"/>
-                    <ellipse cx="150" cy="155" rx="22" ry="9" fill="#27ae60" transform="rotate(20 150 155)"/>
-                    <!-- بريق -->
-                    <circle cx="40" cy="40" r="4" fill="white" opacity="0.8"/>
-                    <circle cx="65" cy="30" r="2.5" fill="white" opacity="0.7"/>
-                    <circle cx="160" cy="50" r="3" fill="white" opacity="0.8"/>
-                </svg>
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-inner">
+            <div class="admin-navbar">
+                <h2>⚙️ لوحة التحكم</h2>
+                <button class="btn-close-admin" onclick="closeAdminPanel()">✖ إغلاق</button>
             </div>
-            <div class="message-inside" id="messageInside">هذا لكِ يا فطومة 💖</div>
+
+            <div class="admin-card">
+                <h3 id="formTitle">➕ إضافة صنف جديد</h3>
+                <input type="hidden" id="editId">
+                
+                <div class="form-group">
+                    <label class="form-label">📸 رابط الصورة</label>
+                    <input type="text" class="form-input" id="itemImage" placeholder="https://example.com/image.jpg">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">📝 اسم الصنف *</label>
+                    <input type="text" class="form-input" id="itemName" placeholder="مثال: برجر دجاج">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">📂 التصنيف</label>
+                        <select class="form-select" id="itemCategory">
+                            <option value="وجبات رئيسية">وجبات رئيسية</option>
+                            <option value="مقبلات">مقبلات</option>
+                            <option value="حلويات">حلويات</option>
+                            <option value="مشروبات">مشروبات</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">💰 السعر *</label>
+                        <input type="number" class="form-input" id="itemPrice" placeholder="مثال: 25" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">📄 الوصف</label>
+                    <textarea class="form-textarea" id="itemDescription" placeholder="وصف مختصر للصنف..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">الحالة</label>
+                    <div class="toggle-wrapper">
+                        <div class="toggle active" id="availabilityToggle" onclick="toggleAvailability()"></div>
+                        <span id="availabilityText" style="font-size:13px;">متوفر</span>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn-sm btn-add-item" id="btnAdd" onclick="addItem()">✅ إضافة</button>
+                    <button class="btn-sm btn-update-item" id="btnUpdate" style="display:none;" onclick="updateItem()">💾 حفظ التعديل</button>
+                    <button class="btn-sm btn-reset-form" onclick="resetForm()">🔄 إعادة تعيين</button>
+                </div>
+            </div>
+
+            <div class="admin-card" style="padding:0;overflow:hidden;">
+                <div class="items-list-header">
+                    <span>صورة</span>
+                    <span>الاسم / التصنيف</span>
+                    <span>السعر</span>
+                    <span>إجراءات</span>
+                </div>
+                <div id="adminItemsList"></div>
+            </div>
         </div>
     </div>
 
-    <!-- ============ SVG Templates للبالونات والهدايا (مخفية) ============ -->
-    <div style="display: none;">
-        <!-- بالون قلب -->
-        <svg id="balloonHeart" viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="ballGradH" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#ff6b9d"/>
-                    <stop offset="100%" stop-color="#e91e63"/>
-                </linearGradient>
-            </defs>
-            <path d="M40 20 C40 8 25 0 18 15 C11 30 40 55 40 55 C40 55 69 30 62 15 C55 0 40 8 40 20Z" fill="url(#ballGradH)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-            <polygon points="38,55 42,55 41,70 39,70" fill="#888"/>
-            <line x1="40" y1="70" x2="40" y2="95" stroke="#888" stroke-width="1.5"/>
-            <circle cx="40" cy="20" r="5" fill="rgba(255,255,255,0.4)"/>
-        </svg>
-
-        <!-- بالون دائري وردي -->
-        <svg id="balloonRound" viewBox="0 0 70 100" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <radialGradient id="ballGradR" cx="40%" cy="35%" r="60%">
-                    <stop offset="0%" stop-color="#ff9a9e"/>
-                    <stop offset="100%" stop-color="#e55073"/>
-                </radialGradient>
-            </defs>
-            <ellipse cx="35" cy="38" rx="28" ry="32" fill="url(#ballGradR)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-            <polygon points="33,68 37,68 36,78 34,78" fill="#888"/>
-            <line x1="35" y1="78" x2="35" y2="95" stroke="#888" stroke-width="1.5"/>
-            <ellipse cx="28" cy="28" rx="6" ry="8" fill="rgba(255,255,255,0.35)" transform="rotate(-20 28 28)"/>
-        </svg>
-
-        <!-- هدية -->
-        <svg id="giftBox" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-            <rect x="5" y="18" width="50" height="38" rx="4" fill="#ff6b9d" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-            <rect x="5" y="18" width="50" height="12" rx="2" fill="#e91e63"/>
-            <rect x="25" y="10" width="10" height="46" rx="2" fill="#ffd700"/>
-            <rect x="18" y="6" width="24" height="14" rx="4" fill="#ffd700" stroke="rgba(255,200,0,0.5)" stroke-width="1"/>
-            <circle cx="22" cy="12" r="3" fill="#fff9c4"/>
-            <circle cx="38" cy="12" r="3" fill="#fff9c4"/>
-        </svg>
-    </div>
+    <div class="toast" id="toast"></div>
 
     <script>
-        // ============ التاريخ الصحيح ============
-        const CORRECT_DAY = 15;
-        const CORRECT_MONTH = 9;
-        const CORRECT_YEAR = 2009;
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDToxHcV5WBoW3TyMnjKOzdTn5_8nrxHcI",
+            authDomain: "wevaz-e716b.firebaseapp.com",
+            projectId: "wevaz-e716b",
+            storageBucket: "wevaz-e716b.firebasestorage.app",
+            messagingSenderId: "11662784893",
+            appId: "1:11662784893:web:24d284abd3096c2e873414",
+            measurementId: "G-EVLFHWE125"
+        };
 
-        // ============ تهيئة حقول التاريخ ============
-        function populateDateFields() {
-            const daySelect = document.getElementById('daySelect');
-            const monthSelect = document.getElementById('monthSelect');
-            const yearSelect = document.getElementById('yearSelect');
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const menuCollection = db.collection('menuItems');
 
-            for (let i = 1; i <= 31; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = i;
-                daySelect.appendChild(option);
-            }
+        let menuItems = [];
+        let currentCategory = 'الكل';
+        let isAvailable = true;
 
-            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر',
-                'نوفمبر', 'ديسمبر'
-            ];
-            for (let i = 1; i <= 12; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = i + ' - ' + monthNames[i - 1];
-                monthSelect.appendChild(option);
-            }
-
-            for (let i = 1995; i <= 2020; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = i;
-                yearSelect.appendChild(option);
-            }
-        }
-
-        populateDateFields();
-
-        // ============ جسيمات الخلفية ============
         function createParticles() {
-            const container = document.getElementById('particlesBg');
-            for (let i = 0; i < 35; i++) {
+            const container = document.getElementById('particles');
+            const colors = ['#ff4757', '#ffa502', '#2ed573', '#ff6b81', '#7bed9f'];
+            for (let i = 0; i < 25; i++) {
                 const particle = document.createElement('div');
-                particle.classList.add('particle');
-                const size = Math.random() * 4 + 2;
-                particle.style.width = size + 'px';
-                particle.style.height = size + 'px';
+                particle.className = 'particle';
                 particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDuration = (Math.random() * 12 + 8) + 's';
+                particle.style.width = particle.style.height = Math.random() * 6 + 3 + 'px';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.animationDuration = Math.random() * 15 + 10 + 's';
                 particle.style.animationDelay = Math.random() * 10 + 's';
-                particle.style.background =
-                    `rgba(255, ${Math.floor(Math.random()*150+100)}, ${Math.floor(Math.random()*150+100)}, ${Math.random()*0.6+0.2})`;
                 container.appendChild(particle);
             }
         }
-
         createParticles();
 
-        // ============ تسجيل الدخول ============
-        function checkLogin() {
-            const day = parseInt(document.getElementById('daySelect').value);
-            const month = parseInt(document.getElementById('monthSelect').value);
-            const year = parseInt(document.getElementById('yearSelect').value);
-            const errorMsg = document.getElementById('errorMsg');
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
 
-            if (!day || !month || !year) {
-                errorMsg.textContent = 'الرجاء إدخال التاريخ كاملاً';
-                errorMsg.classList.add('show');
-                setTimeout(() => errorMsg.classList.remove('show'), 2500);
+        async function loadMenuFromFirebase() {
+            const loadingEl = document.getElementById('loadingSpinner');
+            const gridEl = document.getElementById('menuGrid');
+            const emptyEl = document.getElementById('emptyState');
+            
+            loadingEl.style.display = 'flex';
+            gridEl.innerHTML = '';
+            emptyEl.style.display = 'none';
+
+            try {
+                const snapshot = await menuCollection.orderBy('createdAt', 'desc').get();
+                menuItems = [];
+                snapshot.forEach(doc => {
+                    menuItems.push({ id: doc.id, firebaseId: doc.id, ...doc.data() });
+                });
+                
+                loadingEl.style.display = 'none';
+                displayMenu();
+                
+                if (document.getElementById('adminPanel').classList.contains('active')) {
+                    displayAdminItems();
+                }
+            } catch (error) {
+                loadingEl.style.display = 'none';
+                showToast('❌ فشل تحميل البيانات', 'error');
+            }
+        }
+
+        function displayMenu() {
+            const grid = document.getElementById('menuGrid');
+            const emptyEl = document.getElementById('emptyState');
+            const categoriesBar = document.getElementById('categoriesBar');
+            const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+
+            if (menuItems.length === 0) {
+                grid.innerHTML = '';
+                emptyEl.style.display = 'block';
+                categoriesBar.innerHTML = '';
                 return;
             }
 
-            if (day === CORRECT_DAY && month === CORRECT_MONTH && year === CORRECT_YEAR) {
-                showWelcomeToast();
-                setTimeout(() => {
-                    switchToCelebration();
-                }, 800);
-            } else {
-                errorMsg.textContent = 'التاريخ غير صحيح، حاولي مرة أخرى';
-                errorMsg.classList.add('show');
-                setTimeout(() => errorMsg.classList.remove('show'), 2500);
-                const loginContainer = document.querySelector('.login-container');
-                loginContainer.style.animation = 'none';
-                loginContainer.offsetHeight;
-                loginContainer.style.animation = 'shake 0.5s ease';
+            emptyEl.style.display = 'none';
+            const categories = ['الكل', ...new Set(menuItems.map(i => i.category || 'بدون تصنيف'))];
+            
+            categoriesBar.innerHTML = categories.map(cat =>
+                `<div class="category-chip ${cat === currentCategory ? 'active' : ''}" 
+                      onclick="filterByCategory('${cat}')">${cat}</div>`
+            ).join('');
+
+            let filtered = menuItems;
+            if (currentCategory !== 'الكل') {
+                filtered = filtered.filter(i => (i.category || 'بدون تصنيف') === currentCategory);
             }
-        }
-
-        const styleSheet = document.createElement('style');
-        styleSheet.textContent = `
-            @keyframes shake {
-                0%,100% { transform: translateX(0); }
-                20% { transform: translateX(-8px); }
-                40% { transform: translateX(8px); }
-                60% { transform: translateX(-5px); }
-                80% { transform: translateX(5px); }
-            }
-        `;
-        document.head.appendChild(styleSheet);
-
-        function showWelcomeToast() {
-            const toast = document.getElementById('welcomeToast');
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        function switchToCelebration() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('celebrationPage').classList.add('active');
-            document.body.style.background = '#0a0a1a';
-            startCelebrationEffects();
-        }
-
-        // ============ تأثيرات صفحة الاحتفال ============
-        function startCelebrationEffects() {
-            launchBalloons();
-            startColorChanging();
-            launchRandomFireworks();
-            spawnGifts();
-        }
-
-        // بالونات SVG
-        function launchBalloons() {
-            const container = document.getElementById('celebrationPage');
-            const balloonTypes = ['balloonHeart', 'balloonRound'];
-
-            function createBalloon() {
-                const wrapper = document.createElement('div');
-                wrapper.classList.add('balloon-wrapper');
-                wrapper.style.left = Math.random() * 90 + '%';
-                wrapper.style.animationDuration = (Math.random() * 8 + 10) + 's';
-
-                // استنساخ SVG البالون
-                const svgId = balloonTypes[Math.floor(Math.random() * balloonTypes.length)];
-                const originalSvg = document.getElementById(svgId);
-                const svgClone = originalSvg.cloneNode(true);
-                svgClone.removeAttribute('id');
-                svgClone.style.width = (Math.random() * 30 + 45) + 'px';
-                svgClone.style.height = 'auto';
-
-                wrapper.appendChild(svgClone);
-                container.appendChild(wrapper);
-
-                setTimeout(() => {
-                    if (wrapper.parentNode) wrapper.remove();
-                }, 18000);
-            }
-
-            for (let i = 0; i < 12; i++) {
-                setTimeout(createBalloon, i * 400);
-            }
-            setInterval(createBalloon, 2000);
-        }
-
-        // هدايا SVG متناثرة
-        function spawnGifts() {
-            const container = document.getElementById('celebrationPage');
-
-            function createGift() {
-                const gift = document.createElement('div');
-                gift.classList.add('gift-icon');
-                gift.style.left = Math.random() * 90 + '%';
-                gift.style.top = Math.random() * 80 + '%';
-
-                const originalGift = document.getElementById('giftBox');
-                const giftClone = originalGift.cloneNode(true);
-                giftClone.removeAttribute('id');
-                giftClone.style.width = (Math.random() * 25 + 35) + 'px';
-                giftClone.style.height = 'auto';
-
-                gift.appendChild(giftClone);
-                container.appendChild(gift);
-
-                setTimeout(() => {
-                    if (gift.parentNode) gift.remove();
-                }, 1800);
-            }
-
-            setInterval(createGift, 2200);
-            for (let i = 0; i < 6; i++) {
-                setTimeout(createGift, i * 500);
-            }
-        }
-
-        // تغيير ألوان الخلفية
-        function startColorChanging() {
-            const overlay = document.getElementById('colorOverlay');
-            const colors = [
-                'rgba(255, 100, 150, 0.12)',
-                'rgba(255, 180, 100, 0.12)',
-                'rgba(255, 220, 100, 0.12)',
-                'rgba(100, 200, 255, 0.12)',
-                'rgba(200, 100, 255, 0.12)',
-                'rgba(255, 150, 200, 0.12)',
-                'rgba(150, 255, 200, 0.12)',
-                'rgba(255, 100, 100, 0.12)',
-                'rgba(100, 255, 150, 0.12)',
-                'rgba(255, 200, 150, 0.12)',
-            ];
-            let index = 0;
-            setInterval(() => {
-                overlay.style.backgroundColor = colors[index];
-                index = (index + 1) % colors.length;
-            }, 700);
-        }
-
-        // مفرقعات
-        function launchRandomFireworks() {
-            setInterval(() => {
-                createFirework(
-                    Math.random() * window.innerWidth,
-                    Math.random() * window.innerHeight * 0.7
+            if (searchTerm) {
+                filtered = filtered.filter(i =>
+                    (i.name || '').toLowerCase().includes(searchTerm) ||
+                    (i.description || '').toLowerCase().includes(searchTerm)
                 );
-            }, 900);
-        }
+            }
 
-        function createFirework(x, y) {
-            const container = document.getElementById('celebrationPage');
-            const colors = ['#ff6b9d', '#ff9a9e', '#fad0c4', '#ffd700', '#ff6347', '#7bff7b', '#7bb3ff', '#ff7bff',
-            '#ffff7b'];
-            const particleCount = 25;
-
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('firework-particle');
-                const angle = (Math.PI * 2 * i) / particleCount;
-                const velocity = Math.random() * 80 + 40;
-                const tx = Math.cos(angle) * velocity;
-                const ty = Math.sin(angle) * velocity;
-                particle.style.cssText = `
-                    left: ${x}px;
-                    top: ${y}px;
-                    background: ${colors[Math.floor(Math.random() * colors.length)]};
-                    --tx: ${tx}px;
-                    --ty: ${ty}px;
-                    width: ${Math.random()*5+3}px;
-                    height: ${Math.random()*5+3}px;
-                    animation-delay: ${Math.random()*0.2}s;
-                `;
-                container.appendChild(particle);
-
-                setTimeout(() => {
-                    if (particle.parentNode) particle.remove();
-                }, 1500);
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyEl.style.display = 'block';
+                emptyEl.querySelector('.empty-state-text').textContent = 
+                    searchTerm ? '🔍 لا توجد نتائج للبحث' : '🍽️ لا توجد أصناف في هذا التصنيف';
+            } else {
+                emptyEl.style.display = 'none';
+                grid.innerHTML = filtered.map((item, index) => `
+                    <div class="menu-card ${!item.available ? 'card-unavailable' : ''}" 
+                         style="animation-delay: ${index * 0.06}s">
+                        <div class="card-image-wrapper">
+                            <img src="${item.image || 'https://placehold.co/400x200/1a1a35/666?text=No+Image'}" 
+                                 alt="${item.name}" class="card-image" loading="lazy"
+                                 onerror="this.src='https://placehold.co/400x200/1a1a35/666?text=No+Image'">
+                            <div class="card-image-overlay"></div>
+                            <div class="card-category-tag">${item.category || 'عام'}</div>
+                            <div class="card-badge ${item.available ? 'badge-available' : 'badge-unavailable'}">
+                                ${item.available ? 'متوفر' : 'غير متوفر'}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">${item.name}</h3>
+                            <p class="card-description">${item.description || 'لا يوجد وصف'}</p>
+                            <div class="card-footer">
+                                <div class="card-price">${item.price || 0} <span class="card-price-currency">ريال</span></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
             }
         }
 
-        document.getElementById('celebrationPage').addEventListener('click', function(e) {
-            if (e.target.id === 'revealBtn' || e.target.closest('#roseContainer') || e.target.closest('button'))
-        return;
-            createFirework(e.clientX, e.clientY);
+        function filterByCategory(category) {
+            currentCategory = category;
+            displayMenu();
+        }
+
+        function displayAdminItems() {
+            const container = document.getElementById('adminItemsList');
+            if (menuItems.length === 0) {
+                container.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-secondary);">لا توجد أصناف</div>';
+                return;
+            }
+            container.innerHTML = menuItems.map(item => `
+                <div class="item-row">
+                    <img src="${item.image || 'https://placehold.co/44/333/666'}" 
+                         alt="${item.name}" class="item-thumb"
+                         onerror="this.src='https://placehold.co/44/333/666'">
+                    <div class="item-info">
+                        <h4>${item.name}</h4>
+                        <span>${item.category || 'بدون تصنيف'} · ${item.available ? 'متوفر' : 'غير متوفر'}</span>
+                    </div>
+                    <div class="item-price-cell">${item.price || 0} ريال</div>
+                    <div class="item-actions">
+                        <button class="btn-icon-sm btn-edit-sm" onclick="editItem('${item.firebaseId}')">✏️</button>
+                        <button class="btn-icon-sm btn-delete-sm" onclick="deleteItem('${item.firebaseId}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleAvailability() {
+            isAvailable = !isAvailable;
+            const toggle = document.getElementById('availabilityToggle');
+            const text = document.getElementById('availabilityText');
+            if (isAvailable) { toggle.classList.add('active'); text.textContent = 'متوفر'; }
+            else { toggle.classList.remove('active'); text.textContent = 'غير متوفر'; }
+        }
+
+        async function addItem() {
+            const name = document.getElementById('itemName').value.trim();
+            const price = parseFloat(document.getElementById('itemPrice').value);
+            const image = document.getElementById('itemImage').value.trim();
+
+            if (!name || isNaN(price)) {
+                showToast('⚠️ الرجاء ملء الاسم والسعر', 'error');
+                return;
+            }
+
+            const newItem = {
+                name,
+                category: document.getElementById('itemCategory').value,
+                description: document.getElementById('itemDescription').value.trim() || 'لا يوجد وصف',
+                price,
+                image: image || 'https://placehold.co/400x200/1a1a35/666?text=No+Image',
+                available: isAvailable,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                document.getElementById('btnAdd').disabled = true;
+                document.getElementById('btnAdd').textContent = '⏳ جاري الحفظ...';
+                await menuCollection.add(newItem);
+                resetForm();
+                await loadMenuFromFirebase();
+                showToast('✅ تمت الإضافة بنجاح!');
+            } catch (error) {
+                showToast('❌ فشل الإضافة', 'error');
+            } finally {
+                document.getElementById('btnAdd').disabled = false;
+                document.getElementById('btnAdd').textContent = '✅ إضافة';
+            }
+        }
+
+        function editItem(firebaseId) {
+            const item = menuItems.find(i => i.firebaseId === firebaseId);
+            if (!item) return;
+
+            document.getElementById('editId').value = firebaseId;
+            document.getElementById('itemName').value = item.name || '';
+            document.getElementById('itemCategory').value = item.category || 'وجبات رئيسية';
+            document.getElementById('itemDescription').value = item.description || '';
+            document.getElementById('itemPrice').value = item.price || '';
+            document.getElementById('itemImage').value = item.image || '';
+            isAvailable = item.available !== false;
+            
+            const toggle = document.getElementById('availabilityToggle');
+            const text = document.getElementById('availabilityText');
+            if (isAvailable) { toggle.classList.add('active'); text.textContent = 'متوفر'; }
+            else { toggle.classList.remove('active'); text.textContent = 'غير متوفر'; }
+
+            document.getElementById('formTitle').textContent = '✏️ تعديل: ' + item.name;
+            document.getElementById('btnAdd').style.display = 'none';
+            document.getElementById('btnUpdate').style.display = 'block';
+            document.querySelector('.admin-card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function updateItem() {
+            const firebaseId = document.getElementById('editId').value;
+            if (!firebaseId) return;
+
+            const name = document.getElementById('itemName').value.trim();
+            const price = parseFloat(document.getElementById('itemPrice').value);
+            if (!name || isNaN(price)) {
+                showToast('⚠️ الرجاء ملء الاسم والسعر', 'error');
+                return;
+            }
+
+            const updatedData = {
+                name, price,
+                category: document.getElementById('itemCategory').value,
+                description: document.getElementById('itemDescription').value.trim() || 'لا يوجد وصف',
+                image: document.getElementById('itemImage').value.trim() || 'https://placehold.co/400x200/1a1a35/666?text=No+Image',
+                available: isAvailable,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                document.getElementById('btnUpdate').disabled = true;
+                document.getElementById('btnUpdate').textContent = '⏳ جاري الحفظ...';
+                await menuCollection.doc(firebaseId).update(updatedData);
+                resetForm();
+                await loadMenuFromFirebase();
+                showToast('✅ تم التعديل بنجاح!');
+            } catch (error) {
+                showToast('❌ فشل التعديل', 'error');
+            } finally {
+                document.getElementById('btnUpdate').disabled = false;
+                document.getElementById('btnUpdate').textContent = '💾 حفظ التعديل';
+            }
+        }
+
+        async function deleteItem(firebaseId) {
+            if (!confirm('⚠️ هل أنت متأكد من حذف هذا الصنف؟')) return;
+            try {
+                await menuCollection.doc(firebaseId).delete();
+                await loadMenuFromFirebase();
+                showToast('🗑️ تم الحذف بنجاح!');
+            } catch (error) {
+                showToast('❌ فشل الحذف', 'error');
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('editId').value = '';
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemCategory').value = 'وجبات رئيسية';
+            document.getElementById('itemDescription').value = '';
+            document.getElementById('itemPrice').value = '';
+            document.getElementById('itemImage').value = '';
+            isAvailable = true;
+            document.getElementById('availabilityToggle').classList.add('active');
+            document.getElementById('availabilityText').textContent = 'متوفر';
+            document.getElementById('formTitle').textContent = '➕ إضافة صنف جديد';
+            document.getElementById('btnAdd').style.display = 'block';
+            document.getElementById('btnUpdate').style.display = 'none';
+            document.getElementById('btnAdd').disabled = false;
+            document.getElementById('btnAdd').textContent = '✅ إضافة';
+            document.getElementById('btnUpdate').disabled = false;
+            document.getElementById('btnUpdate').textContent = '💾 حفظ التعديل';
+        }
+
+        function openPasswordModal() {
+            document.getElementById('passwordModal').classList.add('active');
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('errorMsg').style.display = 'none';
+            setTimeout(() => document.getElementById('passwordInput').focus(), 200);
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('active');
+        }
+
+        function checkPassword() {
+            if (document.getElementById('passwordInput').value === 'AHMed') {
+                closePasswordModal();
+                openAdminPanel();
+            } else {
+                document.getElementById('errorMsg').style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        function openAdminPanel() {
+            document.getElementById('adminPanel').classList.add('active');
+            displayAdminItems();
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('adminPanel').classList.remove('active');
+            document.body.style.overflow = '';
+            resetForm();
+            loadMenuFromFirebase();
+        }
+
+        document.getElementById('passwordModal').addEventListener('click', function(e) {
+            if (e.target === this) closePasswordModal();
         });
 
-        // ============ إظهار الوردة ============
-        function revealRose() {
-            const roseEmoji = document.getElementById('roseEmoji');
-            const messageInside = document.getElementById('messageInside');
-            const revealBtn = document.getElementById('revealBtn');
-
-            if (roseEmoji.classList.contains('rose-bloom')) return;
-
-            revealBtn.style.opacity = '0';
-            revealBtn.style.pointerEvents = 'none';
-            revealBtn.style.transition = 'opacity 0.5s ease';
-
-            const btnRect = revealBtn.getBoundingClientRect();
-            const centerX = btnRect.left + btnRect.width / 2;
-            const centerY = btnRect.top + btnRect.height / 2;
-            for (let i = 0; i < 5; i++) {
-                setTimeout(() => {
-                    createFirework(centerX + (Math.random() - 0.5) * 150, centerY + (Math.random() - 0.5) *
-                        100);
-                }, i * 120);
-            }
-
-            setTimeout(() => {
-                roseEmoji.classList.add('rose-bloom');
-                setTimeout(() => {
-                    messageInside.classList.add('show');
-                    for (let i = 0; i < 8; i++) {
-                        setTimeout(() => {
-                            createFirework(
-                                Math.random() * window.innerWidth,
-                                Math.random() * window.innerHeight * 0.6
-                            );
-                        }, i * 180);
-                    }
-                    // هدايا إضافية عند ظهور الرسالة
-                    for (let i = 0; i < 5; i++) {
-                        setTimeout(() => {
-                            const container = document.getElementById('celebrationPage');
-                            const gift = document.createElement('div');
-                            gift.classList.add('gift-icon');
-                            gift.style.left = Math.random() * 90 + '%';
-                            gift.style.top = Math.random() * 70 + '%';
-                            const originalGift = document.getElementById('giftBox');
-                            const giftClone = originalGift.cloneNode(true);
-                            giftClone.removeAttribute('id');
-                            giftClone.style.width = (Math.random() * 30 + 40) + 'px';
-                            giftClone.style.height = 'auto';
-                            gift.appendChild(giftClone);
-                            container.appendChild(gift);
-                            setTimeout(() => { if (gift.parentNode) gift.remove(); }, 2000);
-                        }, i * 250);
-                    }
-                }, 700);
-            }, 300);
-        }
-
-        // Enter key
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const loginPage = document.getElementById('loginPage');
-                if (!loginPage.classList.contains('hidden')) {
-                    checkLogin();
-                }
-            }
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkPassword();
         });
+
+        loadMenuFromFirebase();
     </script>
 </body>
 </html>
