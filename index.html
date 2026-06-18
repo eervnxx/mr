@@ -2,341 +2,840 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WAVES | ويڤز</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         :root {
-            --bg: #0a0a14; --bg2: #12122a;
-            --surface: rgba(20,20,45,0.9); --surface2: rgba(255,255,255,0.02);
-            --glass: rgba(255,255,255,0.04); --glass-border: rgba(255,255,255,0.08);
-            --text: #ffffff; --text2: #9494b8;
-            --primary: #4a90d9; --primary2: #7ab8f5; --secondary: #fd79a8; --accent: #00cec9;
+            --bg: #0a0a14;
+            --surface: rgba(255,255,255,0.04);
+            --surface2: rgba(255,255,255,0.02);
+            --border: rgba(255,255,255,0.06);
+            --text: #ffffff;
+            --text2: #8888aa;
+            --primary: #4a90d9;
+            --accent: #00cec9;
+            --radius: 12px;
             --gradient1: linear-gradient(135deg, #4a90d9, #7ab8f5);
-            --gradient2: linear-gradient(135deg, #fd79a8, #e84393);
-            --gradient-blue: linear-gradient(135deg, #7ab8f5, #1a56db);
-            --header-bg: rgba(10,10,20,0.85); --card-bg: rgba(20,20,45,0.8);
-            --input-bg: rgba(255,255,255,0.04); --shadow: 0 20px 50px rgba(0,0,0,0.5);
-            --shadow-card: 0 8px 32px rgba(0,0,0,0.3); --radius: 20px; --radius-sm: 12px;
-            --font-ar: 'Cairo', sans-serif; --font-en: 'Poppins', sans-serif;
+            --font-ar: 'Cairo', sans-serif;
+            --font-en: 'Poppins', sans-serif;
         }
-
+        
         .light-mode {
-            --bg: #f5f6fa; --bg2: #ffffff; --surface: rgba(255,255,255,0.95);
-            --surface2: rgba(0,0,0,0.015); --glass: rgba(0,0,0,0.03);
-            --glass-border: rgba(0,0,0,0.08); --text: #1a1a2e; --text2: #6b6b80;
-            --primary: #3b7dd8; --primary2: #5a9ef5; --secondary: #e85d9a; --accent: #00b894;
-            --header-bg: rgba(255,255,255,0.9); --card-bg: rgba(255,255,255,0.95);
-            --input-bg: rgba(0,0,0,0.025); --shadow: 0 10px 40px rgba(0,0,0,0.06);
-            --shadow-card: 0 4px 20px rgba(0,0,0,0.05);
+            --bg: #f5f6fa;
+            --surface: rgba(0,0,0,0.03);
+            --surface2: rgba(0,0,0,0.01);
+            --border: rgba(0,0,0,0.06);
+            --text: #1a1a2e;
+            --text2: #6b6b80;
+            --primary: #3b7dd8;
+            --accent: #00b894;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        
         body {
             font-family: var(--font-ar);
             background: var(--bg);
-            background-image: 
-                radial-gradient(ellipse at 20% 0%, rgba(74,144,217,0.12) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 100%, rgba(253,121,168,0.1) 0%, transparent 60%),
-                radial-gradient(ellipse at 50% 50%, rgba(0,206,201,0.05) 0%, transparent 70%);
-            min-height: 100vh; color: var(--text);
-            -webkit-tap-highlight-color: transparent;
-            transition: background 0.5s, color 0.5s; overflow-x: hidden;
+            color: var(--text);
+            padding: 12px;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s, font-family 0.3s;
         }
-
-        .bg-orb { position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.15; pointer-events: none; z-index: 0; animation: orbFloat 20s ease-in-out infinite; }
-        .bg-orb.orb1 { width: 500px; height: 500px; background: var(--primary); top: -10%; left: -10%; }
-        .bg-orb.orb2 { width: 400px; height: 400px; background: var(--secondary); bottom: -10%; right: -5%; animation-delay: -7s; }
-        .bg-orb.orb3 { width: 300px; height: 300px; background: var(--accent); top: 50%; left: 40%; animation-delay: -14s; }
-        @keyframes orbFloat { 0%,100% { transform: translate(0,0) scale(1); } 25% { transform: translate(40px,-30px) scale(1.1); } 50% { transform: translate(-20px,20px) scale(0.9); } 75% { transform: translate(-30px,-20px) scale(1.05); } }
-
+        
+        body.lang-en {
+            font-family: var(--font-en);
+        }
+        
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        /* ============================================================
+           رأس الصفحة - WAVES Restaurant (بالانكليزي)
+           ============================================================ */
         .header {
-            position: sticky; top: 0; z-index: 100; background: var(--header-bg);
-            backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
-            border-bottom: 1px solid var(--glass-border); padding: 14px 20px;
-            display: flex; justify-content: space-between; align-items: center; transition: 0.4s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0 12px;
+            border-bottom: 1px solid var(--border);
         }
-        .brand { display: flex; align-items: center; gap: 6px; }
-        .brand-text {
-            font-size: 26px; font-weight: 900; letter-spacing: -0.5px; font-family: var(--font-en);
-            background: var(--gradient1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .brand-sub { font-size: 10px; color: var(--text2); font-weight: 400; letter-spacing: 2px; text-transform: uppercase; font-family: var(--font-en); }
-        .header-actions { display: flex; gap: 8px; align-items: center; }
-
+        .brand-text-en {
+            font-size: 26px;
+            font-weight: 900;
+            font-family: var(--font-en);
+            background: var(--gradient1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+        .brand-sub {
+            font-size: 10px;
+            color: var(--text2);
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: var(--font-en);
+        }
+        
+        .header-actions { display: flex; gap: 8px; }
+        
         .btn-settings {
-            width: 44px; height: 44px; border-radius: 14px; background: var(--glass);
-            border: 1px solid var(--glass-border); color: var(--text); cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: 0.3s;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            touch-action: manipulation;
         }
-        .btn-settings:hover { background: rgba(128,128,128,0.2); transform: translateY(-3px); box-shadow: var(--shadow-card); }
-        .btn-settings svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-        .container { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 20px 16px 80px; }
-
-        .hero { text-align: center; padding: 50px 20px 30px; position: relative; }
+        .btn-settings:active {
+            transform: scale(0.92);
+        }
+        .btn-settings svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        /* ============================================================
+           الهيرو - مع اسم ويڤز كبير
+           ============================================================ */
+        .hero {
+            text-align: center;
+            padding: 16px 10px 10px;
+            position: relative;
+        }
         .hero-badge {
-            display: inline-block; padding: 8px 20px; border-radius: 50px;
-            background: var(--glass); border: 1px solid var(--glass-border);
-            font-size: 12px; font-weight: 600; color: var(--primary2);
-            margin-bottom: 24px; letter-spacing: 2px; text-transform: uppercase;
-            font-family: var(--font-en); backdrop-filter: blur(20px);
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 50px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            backdrop-filter: blur(20px);
         }
         .hero h1 {
-            font-size: clamp(50px, 10vw, 90px); font-weight: 900; line-height: 1;
-            font-family: var(--font-ar); letter-spacing: -1px; margin-bottom: 8px;
+            font-size: clamp(48px, 14vw, 80px);
+            font-weight: 900;
+            line-height: 1;
+            font-family: var(--font-ar);
+            letter-spacing: -1px;
+            margin-bottom: 4px;
         }
         .hero h1 .wavz-text {
             background: linear-gradient(180deg, #b8d9ff 0%, #7ab8f5 30%, #3b7dd8 60%, #1a3d7a 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 0 8px 40px rgba(26,61,122,0.5), 0 2px 8px rgba(0,0,0,0.6);
-            filter: drop-shadow(0 6px 20px rgba(0,0,0,0.5));
+            text-shadow: 0 4px 20px rgba(26,61,122,0.4);
             display: inline-block;
         }
-        .hero p { font-size: clamp(14px, 3vw, 18px); color: var(--text2); font-weight: 300; max-width: 500px; margin: 0 auto; }
-
-        .search-wrapper { position: relative; max-width: 520px; margin: 10px auto 25px; }
+        .hero p {
+            font-size: clamp(13px, 2.5vw, 16px);
+            color: var(--text2);
+            font-weight: 300;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        /* ============================================================
+           البحث
+           ============================================================ */
+        .search-wrapper { margin: 10px 0 12px; position: relative; }
         .search {
-            width: 100%; padding: 16px 24px; border-radius: 50px; background: var(--input-bg);
-            border: 2px solid var(--glass-border); color: var(--text); font-size: 15px;
-            outline: none; transition: 0.3s; font-family: var(--font-ar); backdrop-filter: blur(20px);
+            width: 100%; padding: 12px 16px 12px 44px;
+            border-radius: 50px; background: var(--surface);
+            border: 1px solid var(--border); color: var(--text);
+            font-size: 14px; font-family: inherit; outline: none;
+            transition: 0.2s;
         }
         .search::placeholder { color: var(--text2); }
-        .search:focus { border-color: var(--primary); box-shadow: 0 0 0 6px rgba(74,144,217,0.1); }
-        .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text2); font-size: 18px; pointer-events: none; }
-
-        .cats { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 30px; }
+        .search:focus { border-color: var(--primary); }
+        .search-icon {
+            position: absolute; left: 16px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--text2); font-size: 16px;
+            pointer-events: none;
+        }
+        
+        /* ============================================================
+           التصنيفات
+           ============================================================ */
+        .cats-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            margin: 6px 0 12px;
+            padding: 2px 0;
+        }
+        .cats-wrapper::-webkit-scrollbar { display: none; }
+        .cats {
+            display: flex;
+            gap: 8px;
+            flex-wrap: nowrap;
+        }
         .cat-btn {
-            padding: 10px 22px; border-radius: 50px; background: var(--glass);
-            border: 1px solid var(--glass-border); color: var(--text2);
-            cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.3s;
-            backdrop-filter: blur(20px); font-family: var(--font-ar);
+            padding: 6px 16px;
+            border-radius: 50px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+            touch-action: manipulation;
+            min-height: 36px;
         }
-        .cat-btn:hover { background: rgba(74,144,217,0.15); color: var(--text); transform: translateY(-2px); }
-        .cat-btn.active { background: var(--gradient1); color: white; border-color: transparent; box-shadow: 0 6px 20px rgba(74,144,217,0.3); }
-
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 22px; }
+        .cat-btn:active { transform: scale(0.95); }
+        .cat-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* ============================================================
+           شبكة الأطباق
+           ============================================================ */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
         .card {
-            background: var(--card-bg); border: 1px solid var(--glass-border);
-            border-radius: var(--radius); overflow: hidden; backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            animation: cardUp 0.6s ease forwards; opacity: 0; box-shadow: var(--shadow-card); position: relative;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: 0.2s;
+            animation: fadeUp 0.3s ease forwards;
+            opacity: 0;
         }
-        @keyframes cardUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-        .card:hover { transform: translateY(-10px); box-shadow: 0 24px 48px rgba(0,0,0,0.2); border-color: rgba(74,144,217,0.3); }
-        .card-img-wrap { position: relative; width: 100%; height: 210px; overflow: hidden; }
-        .card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-        .card:hover img { transform: scale(1.08); }
-        .card-img-overlay { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(to top, var(--card-bg), transparent); }
-        .card-badge { position: absolute; top: 14px; right: 14px; padding: 6px 14px; border-radius: 50px; font-size: 11px; font-weight: 700; backdrop-filter: blur(20px); letter-spacing: 0.5px; font-family: var(--font-en); }
-        .badge-on { background: rgba(0,206,201,0.25); color: #00cec9; border: 1px solid rgba(0,206,201,0.3); }
-        .badge-off { background: rgba(253,121,168,0.25); color: #fd79a8; border: 1px solid rgba(253,121,168,0.3); }
-        .card-cat { position: absolute; top: 14px; left: 14px; padding: 5px 12px; border-radius: 50px; background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); font-size: 10px; color: rgba(255,255,255,0.8); font-weight: 500; }
-        .card-body { padding: 18px; }
-        .card h3 { font-size: 20px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.3px; }
-        .card p { color: var(--text2); font-size: 13px; margin-bottom: 14px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .card-foot { display: flex; justify-content: space-between; align-items: center; }
-        .price { font-size: 26px; font-weight: 800; font-family: var(--font-en); }
-        .price-green { color: var(--accent); }
-        .card.off { opacity: 0.45; filter: grayscale(30%); }
-        .card.off:hover { opacity: 0.7; }
-
-        .empty { text-align: center; padding: 60px; color: var(--text2); display: none; font-size: 18px; }
-        .empty-icon { font-size: 60px; margin-bottom: 16px; opacity: 0.6; }
-
-        .settings-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 1100; justify-content: center; align-items: center; }
-        .settings-modal.show { display: flex; }
-        .settings-box { background: var(--surface); border: 1px solid var(--glass-border); padding: 28px 24px; border-radius: 28px; width: 92%; max-width: 420px; box-shadow: var(--shadow); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(40px); }
-        @keyframes pop { from { transform: scale(0.85) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
-        .settings-box h3 { margin-bottom: 24px; font-size: 20px; text-align: center; font-weight: 700; }
-        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--glass-border); }
+        .card:active { transform: scale(0.97); }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card.off { opacity: 0.4; }
+        
+        .card-img-wrap {
+            width: 100%;
+            height: 140px;
+            overflow: hidden;
+            background: var(--surface2);
+            position: relative;
+        }
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: var(--surface2);
+        }
+        .card-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 2px 10px;
+            border-radius: 50px;
+            font-size: 9px;
+            font-weight: 700;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            color: #fff;
+        }
+        .badge-on { background: rgba(0,206,201,0.3); color: #00cec9; }
+        .badge-off { background: rgba(253,121,168,0.3); color: #fd79a8; }
+        .card-cat {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            padding: 2px 10px;
+            border-radius: 50px;
+            font-size: 9px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            color: rgba(255,255,255,0.8);
+        }
+        .card-body { padding: 10px; }
+        .card h3 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 2px;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .card p {
+            font-size: 11px;
+            color: var(--text2);
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+        .price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        
+        /* Skeleton Loading */
+        .skeleton {
+            background: var(--surface);
+            border-radius: var(--radius);
+            overflow: hidden;
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+        .skeleton .skeleton-img { height: 140px; background: var(--surface2); }
+        .skeleton .skeleton-body { padding: 10px; }
+        .skeleton .skeleton-line {
+            height: 12px;
+            background: var(--surface2);
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+        .skeleton .skeleton-line.short { width: 50%; }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.9; }
+        }
+        
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text2);
+            grid-column: 1 / -1;
+        }
+        .empty-icon { font-size: 40px; margin-bottom: 8px; }
+        
+        /* ============================================================
+           النوافذ المنبثقة
+           ============================================================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .modal-overlay.show { display: flex; }
+        
+        .modal-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px 20px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: popIn 0.3s ease;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.9) translateY(10px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .modal-box h3 { text-align: center; margin-bottom: 16px; font-size: 18px; }
+        
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
         .setting-row:last-child { border-bottom: none; }
-        .setting-row span { font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
-        .setting-row select { padding: 10px 16px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--glass-border); color: var(--text); font-size: 13px; outline: none; cursor: pointer; font-family: inherit; }
-        .setting-row select option { background: var(--bg2); color: var(--text); }
-        .toggle-sw { width: 54px; height: 30px; background: var(--glass); border-radius: 50px; cursor: pointer; position: relative; border: 1px solid var(--glass-border); transition: 0.3s; }
-        .toggle-sw.on { background: var(--primary); border-color: var(--primary); }
-        .toggle-sw::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-        .toggle-sw.on::after { left: 26px; }
-        .btn-admin-link { width: 100%; padding: 16px; border-radius: 16px; background: var(--gradient1); color: white; border: none; cursor: pointer; font-weight: 700; font-size: 15px; margin-top: 20px; transition: 0.3s; font-family: var(--font-ar); box-shadow: 0 8px 24px rgba(74,144,217,0.3); }
-        .btn-admin-link:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(74,144,217,0.4); }
-        .btn-close-settings { width: 100%; padding: 14px; border-radius: 16px; background: var(--glass); color: var(--text2); border: 1px solid var(--glass-border); cursor: pointer; font-weight: 600; font-size: 14px; margin-top: 10px; transition: 0.3s; }
-
-        .pass-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 1200; justify-content: center; align-items: center; }
-        .pass-modal.show { display: flex; }
-        .pass-box { background: var(--surface); border: 1px solid var(--glass-border); padding: 35px 24px; border-radius: 28px; text-align: center; width: 92%; max-width: 420px; box-shadow: var(--shadow); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(40px); }
-        .pass-box .lock-icon { font-size: 48px; margin-bottom: 12px; }
-        .pass-box h2 { margin-bottom: 18px; font-size: 20px; font-weight: 700; }
-        .pass-box input {
-            width: 100%; padding: 16px; border-radius: 14px; background: var(--input-bg);
-            border: 2px solid var(--glass-border); color: var(--text); text-align: center;
-            font-size: 16px; margin-bottom: 10px; outline: none; font-family: inherit; transition: 0.3s;
+        .setting-row span { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+        .setting-row select {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 12px;
+            font-family: inherit;
+            outline: none;
+            min-height: 36px;
         }
-        .pass-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 6px rgba(74,144,217,0.08); }
-        .pass-box button { width: 100%; padding: 16px; border-radius: 14px; border: none; cursor: pointer; font-weight: 700; font-size: 15px; margin-top: 6px; transition: 0.3s; font-family: var(--font-ar); }
-        .btn-login { background: var(--gradient1); color: white; box-shadow: 0 6px 20px rgba(74,144,217,0.3); }
-        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(74,144,217,0.4); }
-        .btn-cancel { background: var(--glass); color: var(--text2); border: 1px solid var(--glass-border); }
-        .err { color: #fd79a8; font-size: 13px; margin-top: 10px; display: none; font-weight: 500; }
-
-        .admin { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 999; overflow-y: auto; padding: 12px; }
-        .admin.show { display: block; }
-        .admin-wrap { max-width: 750px; margin: 0 auto; }
-        .admin-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--surface2); border-radius: var(--radius); margin-bottom: 16px; border: 1px solid var(--glass-border); backdrop-filter: blur(20px); }
-        .admin-bar h3 { font-size: 18px; font-weight: 700; }
-        .admin-bar button { background: rgba(253,121,168,0.2); color: var(--secondary); border: none; padding: 10px 18px; border-radius: 14px; cursor: pointer; font-weight: 600; transition: 0.3s; }
-        .admin-bar button:hover { background: rgba(253,121,168,0.35); }
-        .form-box { background: var(--surface2); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; backdrop-filter: blur(20px); }
-        .form-box h3 { margin-bottom: 16px; font-size: 16px; font-weight: 700; }
-        .f-group { margin-bottom: 12px; }
-        .f-group label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .f-group input, .f-group select, .f-group textarea { width: 100%; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--input-bg); border: 1px solid var(--glass-border); color: var(--text); font-size: 14px; outline: none; font-family: inherit; transition: 0.3s; }
-        .f-group input:focus, .f-group select:focus, .f-group textarea:focus { border-color: var(--primary); }
-        .f-group textarea { min-height: 70px; resize: vertical; }
-        .f-group select option { background: var(--bg2); color: var(--text); }
-        .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .file-box { border: 2px dashed var(--glass-border); border-radius: var(--radius-sm); padding: 28px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .file-box:hover { border-color: var(--primary); background: rgba(74,144,217,0.04); }
+        .toggle-sw {
+            width: 44px;
+            height: 26px;
+            background: var(--surface);
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .toggle-sw.on { background: var(--primary); border-color: var(--primary); }
+        .toggle-sw::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-sw.on::after { left: 20px; }
+        
+        .btn-full {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.2s;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+        .btn-full:active { transform: scale(0.97); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: var(--surface); color: var(--text2); border: 1px solid var(--border); }
+        
+        .btn-close-modal {
+            margin-top: 8px;
+            background: var(--surface);
+            color: var(--text2);
+            border: 1px solid var(--border);
+        }
+        
+        /* نموذج تسجيل الدخول */
+        .pass-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+            margin-bottom: 8px;
+            outline: none;
+            min-height: 44px;
+        }
+        .pass-box input:focus { border-color: var(--primary); }
+        .err { color: #fd79a8; font-size: 13px; display: none; text-align: center; margin-top: 8px; }
+        
+        /* لوحة التحكم */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 999;
+            overflow-y: auto;
+            padding: 12px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .admin-panel.show { display: block; }
+        
+        .admin-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: var(--surface);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .admin-bar h3 { font-size: 15px; }
+        .admin-bar button {
+            padding: 6px 16px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(253,121,168,0.2);
+            color: #fd79a8;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            min-height: 36px;
+        }
+        .admin-bar button:active { transform: scale(0.95); }
+        
+        .form-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .form-box h3 { font-size: 14px; margin-bottom: 10px; }
+        .f-group { margin-bottom: 8px; }
+        .f-group label {
+            display: block;
+            font-size: 10px;
+            color: var(--text2);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+        .f-group input, .f-group select, .f-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            min-height: 40px;
+            transition: 0.2s;
+        }
+        .f-group input:focus, .f-group select:focus, .f-group textarea:focus {
+            border-color: var(--primary);
+        }
+        .f-group textarea { min-height: 50px; resize: vertical; }
+        .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        
+        .file-box {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            min-height: 60px;
+        }
+        .file-box:active { transform: scale(0.98); }
         .file-box.ok { border-color: var(--accent); border-style: solid; background: rgba(0,206,201,0.04); }
-        .file-box .fico { font-size: 36px; }
-        .file-box .ftxt { font-size: 13px; color: var(--text2); margin-top: 6px; }
+        .file-box .fico { font-size: 24px; }
+        .file-box .ftxt { font-size: 12px; color: var(--text2); }
         .file-inp { display: none; }
-        .preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: var(--radius-sm); margin-top: 12px; display: none; }
-        .prog { width: 100%; height: 5px; background: rgba(128,128,128,0.15); border-radius: 3px; margin-top: 10px; display: none; overflow: hidden; }
-        .prog-fill { height: 100%; background: var(--gradient1); border-radius: 3px; width: 0%; transition: width 0.3s; }
-        .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
-        .btn { padding: 14px 22px; border-radius: 14px; border: none; cursor: pointer; font-weight: 700; font-size: 14px; flex: 1; min-width: 90px; transition: 0.3s; }
+        .preview {
+            width: 100%;
+            max-height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 8px;
+            display: none;
+        }
+        .prog {
+            width: 100%;
+            height: 4px;
+            background: rgba(128,128,128,0.15);
+            border-radius: 3px;
+            margin-top: 6px;
+            display: none;
+            overflow: hidden;
+        }
+        .prog-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 60px;
+            min-height: 40px;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        .btn:active { transform: scale(0.95); }
         .btn-add { background: var(--accent); color: #000; }
-        .btn-add:hover { box-shadow: 0 6px 20px rgba(0,206,201,0.3); transform: translateY(-2px); }
-        .btn-save { background: var(--secondary); color: white; }
-        .btn-save:hover { box-shadow: 0 6px 20px rgba(253,121,168,0.3); transform: translateY(-2px); }
-        .btn-clr { background: var(--glass); color: var(--text2); border: 1px solid var(--glass-border); }
-        .list-head { display: grid; grid-template-columns: 45px 1fr 65px 85px; gap: 8px; padding: 12px 16px; font-size: 10px; color: var(--text2); font-weight: 700; border-bottom: 1px solid var(--glass-border); text-transform: uppercase; letter-spacing: 1px; }
-        .list-row { display: grid; grid-template-columns: 45px 1fr 65px 85px; gap: 8px; padding: 12px 16px; align-items: center; border-bottom: 1px solid rgba(128,128,128,0.06); transition: 0.2s; }
-        .list-row:hover { background: rgba(128,128,128,0.03); }
-        .list-row img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; }
-        .list-row .linfo h4 { font-size: 13px; font-weight: 600; }
-        .list-row .linfo span { font-size: 10px; color: var(--text2); }
-        .list-row .lprice { color: var(--accent); font-weight: 700; font-size: 13px; }
+        .btn-save { background: #fd79a8; color: white; }
+        .btn-clr { background: var(--surface); color: var(--text2); border: 1px solid var(--border); }
+        
+        .list-head {
+            display: grid;
+            grid-template-columns: 30px 1fr 45px 60px;
+            gap: 4px;
+            padding: 8px 12px;
+            font-size: 9px;
+            color: var(--text2);
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .list-row {
+            display: grid;
+            grid-template-columns: 30px 1fr 45px 60px;
+            gap: 4px;
+            padding: 6px 12px;
+            align-items: center;
+            border-bottom: 1px solid rgba(128,128,128,0.04);
+        }
+        .list-row img {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: var(--surface2);
+        }
+        .list-row .linfo h4 { font-size: 12px; font-weight: 600; }
+        .list-row .linfo span { font-size: 9px; color: var(--text2); }
+        .list-row .lprice { font-size: 12px; font-weight: 700; color: var(--accent); }
         .lacts { display: flex; gap: 4px; }
-        .btn-xs { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--glass); cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .btn-xs:hover { transform: scale(1.1); }
-        .btn-xs.ed { color: var(--secondary); border-color: rgba(253,121,168,0.3); background: rgba(253,121,168,0.08); }
-        .btn-xs.dl { color: #fd79a8; border-color: rgba(253,121,168,0.3); background: rgba(253,121,168,0.08); }
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(120px); background: var(--surface); border: 1px solid var(--glass-border); padding: 14px 26px; border-radius: 50px; z-index: 2000; font-size: 14px; font-weight: 600; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: var(--shadow); pointer-events: none; color: var(--text); backdrop-filter: blur(20px); font-family: var(--font-ar); }
+        .btn-xs {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            transition: 0.2s;
+        }
+        .btn-xs:active { transform: scale(0.9); }
+        .btn-xs.ed { color: #fd79a8; border-color: rgba(253,121,168,0.2); background: rgba(253,121,168,0.05); }
+        .btn-xs.dl { color: #fd79a8; border-color: rgba(253,121,168,0.2); background: rgba(253,121,168,0.05); }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            z-index: 2000;
+            font-size: 13px;
+            font-weight: 600;
+            transition: transform 0.4s ease;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            pointer-events: none;
+            max-width: 90%;
+            text-align: center;
+        }
         .toast.on { transform: translateX(-50%) translateY(0); }
-
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-            .card-img-wrap { height: 150px; }
-            .card-body { padding: 12px; }
-            .card h3 { font-size: 15px; }
-            .price { font-size: 20px; }
+        
+        @media (max-width: 400px) {
+            .grid { gap: 8px; }
+            .card-img-wrap { height: 110px; }
+            .card h3 { font-size: 13px; }
+            .price { font-size: 15px; }
+            .card-body { padding: 8px; }
             .f-row { grid-template-columns: 1fr; }
-            .list-head, .list-row { grid-template-columns: 35px 1fr 55px 70px; font-size: 9px; }
-            .hero h1 { font-size: 48px; }
-            .brand-text { font-size: 22px; }
+            .list-head, .list-row { grid-template-columns: 24px 1fr 40px 50px; font-size: 8px; }
+            .list-row img { width: 22px; height: 22px; }
+            .brand-text-en { font-size: 20px; }
+            .btn-settings { width: 38px; height: 38px; }
+            .btn-settings svg { width: 18px; height: 18px; }
         }
     </style>
 </head>
 <body>
-
-    <div class="bg-orb orb1"></div>
-    <div class="bg-orb orb2"></div>
-    <div class="bg-orb orb3"></div>
-
-    <header class="header">
-        <div class="brand">
-            <div class="brand-text">WAVES</div>
-            <div class="brand-sub">Restaurant</div>
-        </div>
-        <div class="header-actions">
-            <button class="btn-settings" onclick="openSettings()" title="Settings">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>
-            </button>
-        </div>
-    </header>
-
     <div class="container">
+        <header class="header">
+            <div class="brand">
+                <span class="brand-text-en">WAVES</span>
+                <span class="brand-sub">✦ Restaurant</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn-settings" onclick="openSettings()" title="Settings">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
         <div class="hero">
-            <div class="hero-badge">✦ Premium Quality</div>
+            <div class="hero-badge" data-i18n="badge">✦ Premium Quality</div>
             <h1><span class="wavz-text">ويڤز</span></h1>
-            <p data-lang="heroSub">أشهى المأكولات المحضرة بعناية فائقة</p>
+            <p data-i18n="heroSub">أشهى المأكولات المحضرة بعناية فائقة</p>
         </div>
 
         <div class="search-wrapper">
             <span class="search-icon">🔍</span>
-            <input type="text" class="search" id="searchInput" data-lang-placeholder="search" placeholder="ابحث عن وجبتك المفضلة..." oninput="showMenu()">
+            <input type="text" class="search" id="searchInput" data-i18n-placeholder="search" placeholder="ابحث عن وجبتك المفضلة..." oninput="filterItems()">
         </div>
 
-        <div class="cats" id="catBar"></div>
+        <div class="cats-wrapper">
+            <div class="cats" id="catBar"></div>
+        </div>
+
         <div class="grid" id="menuGrid"></div>
-        <div class="empty" id="emptyMsg"><div class="empty-icon">🍽️</div><span data-lang="empty">لا توجد أصناف متاحة</span></div>
     </div>
 
-    <div class="settings-modal" id="settingsModal">
-        <div class="settings-box">
-            <h3 data-lang="settings">⚙️ الإعدادات</h3>
-            <div class="setting-row"><span data-lang="darkmode">🌙 الوضع الليلي</span><div class="toggle-sw on" id="darkToggle" onclick="toggleDarkMode()"></div></div>
-            <div class="setting-row"><span data-lang="language">🌐 اللغة</span>
+    <!-- ============================================================
+    نافذة الإعدادات
+    ============================================================ -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-box">
+            <h3 data-i18n="settingsTitle">⚙️ الإعدادات</h3>
+            <div class="setting-row">
+                <span data-i18n="darkMode">🌙 الوضع الليلي</span>
+                <div class="toggle-sw on" id="darkToggle" onclick="toggleDarkMode()"></div>
+            </div>
+            <div class="setting-row">
+                <span data-i18n="language">🌐 اللغة</span>
                 <select id="langSelect" onchange="changeLanguage(this.value)">
                     <option value="ar">🇸🇦 العربية</option>
                     <option value="en">🇬🇧 English</option>
                     <option value="ku">🏳️ کوردی</option>
                 </select>
             </div>
-            <button class="btn-admin-link" onclick="openPassFromSettings()" data-lang="adminBtn">🔐 لوحة تحكم الإدارة</button>
-            <button class="btn-close-settings" onclick="closeSettings()" data-lang="close">إغلاق</button>
+            <button class="btn-full btn-primary" onclick="openAdminLogin()" data-i18n="adminBtn">🔐 لوحة تحكم الإدارة</button>
+            <button class="btn-full btn-close-modal" onclick="closeSettings()" data-i18n="close">إغلاق</button>
         </div>
     </div>
 
-    <div class="pass-modal" id="passModal">
-        <div class="pass-box">
-            <div class="lock-icon">🔐</div>
-            <h2 data-lang="passTitle">دخول المشرف</h2>
-            <input type="email" id="emailInput" placeholder="البريد الإلكتروني">
-            <input type="password" id="passInput" placeholder="كلمة المرور">
-            <button class="btn-login" onclick="checkPass()" data-lang="loginBtn">🚀 دخول</button>
-            <button class="btn-cancel" onclick="closePassModal()" data-lang="cancel">إلغاء</button>
-            <p class="err" id="errMsg" data-lang="wrongPass">❌ البريد الإلكتروني أو كلمة المرور غير صحيحة</p>
+    <!-- ============================================================
+    نافذة تسجيل الدخول
+    ============================================================ -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box pass-box">
+            <div style="font-size:40px;text-align:center;margin-bottom:8px;">🔐</div>
+            <h3 data-i18n="loginTitle">دخول المشرف</h3>
+            <input type="email" id="emailInput" data-i18n-placeholder="email" placeholder="البريد الإلكتروني" autocomplete="email">
+            <input type="password" id="passInput" data-i18n-placeholder="password" placeholder="كلمة المرور" autocomplete="current-password">
+            <button class="btn-full btn-primary" onclick="checkLogin()" data-i18n="loginBtn">🚀 دخول</button>
+            <button class="btn-full btn-close-modal" onclick="closeLogin()" data-i18n="cancel">إلغاء</button>
+            <p class="err" id="errMsg" data-i18n="wrongPass">❌ البريد الإلكتروني أو كلمة المرور غير صحيحة</p>
         </div>
     </div>
 
-    <div class="admin" id="adminPanel">
-        <div class="admin-wrap">
-            <div class="admin-bar"><h3>⚙️ لوحة التحكم</h3><button onclick="closeAdmin()">✖ إغلاق</button></div>
+    <!-- ============================================================
+    لوحة التحكم
+    ============================================================ -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-wrap" style="max-width:750px;margin:0 auto;">
+            <div class="admin-bar">
+                <h3 data-i18n="adminPanelTitle">⚙️ لوحة التحكم</h3>
+                <button onclick="closeAdmin()" data-i18n="close">✖ إغلاق</button>
+            </div>
+            
             <div class="form-box">
-                <h3 id="formTitle" data-lang="formTitle">➕ إضافة صنف جديد</h3>
+                <h3 id="formTitle" data-i18n="addItemTitle">➕ إضافة صنف جديد</h3>
                 <input type="hidden" id="editId">
-                <div class="f-group"><label data-lang="imgLabel">📸 صورة من الهاتف</label>
+                
+                <div class="f-group">
+                    <label data-i18n="imageLabel">📸 صورة من الهاتف</label>
                     <div class="file-box" id="fileBox" onclick="document.getElementById('fileInput').click()">
-                        <div class="fico">📁</div><div class="ftxt" data-lang="uploadText">اضغط لاختيار صورة من الاستديو</div>
+                        <div class="fico">📁</div>
+                        <div class="ftxt" data-i18n="uploadText">اضغط لاختيار صورة من الاستديو</div>
                     </div>
                     <input type="file" class="file-inp" id="fileInput" accept="image/*" onchange="handleFile(event)">
                     <img class="preview" id="previewImg">
                     <div class="prog" id="progBar"><div class="prog-fill" id="progFill"></div></div>
                 </div>
-                <div class="f-group"><label data-lang="nameLabel">📝 اسم الصنف</label><input type="text" id="itemName" placeholder="برجر دجاج"></div>
-                <div class="f-row">
-                    <div class="f-group"><label data-lang="catLabel">📂 تصنيف</label><select id="itemCat"><option>وجبات سريعة</option><option>اراكيل</option><option>حلويات</option><option>عصائر طبيعية</option><option>مشروبات باردة</option><option>مشروبات ساخنه</option><option>مقبلات</option><option>بيتزا</option><option>بركر</option><option>ريزو</option><option>ايس كريم</option><option>كوكتيلات</option><option>موهيتو</option><option>فرابتشينو</option><option>ميلك شيلك</option></select></div>
-                    <div class="f-group"><label data-lang="priceLabel">💰 سعر</label><input type="number" id="itemPrice" placeholder="25" step="0.01"></div>
+                
+                <div class="f-group">
+                    <label data-i18n="nameLabel">📝 اسم الصنف</label>
+                    <input type="text" id="itemName" data-i18n-placeholder="namePlaceholder" placeholder="برجر دجاج">
                 </div>
-                <div class="f-group"><label data-lang="descLabel">📄 وصف</label><textarea id="itemDesc" placeholder="وصف مختصر..."></textarea></div>
+                
+                <div class="f-row">
+                    <div class="f-group">
+                        <label data-i18n="categoryLabel">📂 تصنيف</label>
+                        <select id="itemCat">
+                            <option>وجبات سريعة</option>
+                            <option>اراكيل</option>
+                            <option>حلويات</option>
+                            <option>عصائر طبيعية</option>
+                            <option>مشروبات باردة</option>
+                            <option>مشروبات ساخنه</option>
+                            <option>مقبلات</option>
+                            <option>بيتزا</option>
+                            <option>بركر</option>
+                            <option>ريزو</option>
+                            <option>ايس كريم</option>
+                            <option>كوكتيلات</option>
+                            <option>موهيتو</option>
+                            <option>فرابتشينو</option>
+                            <option>ميلك شيلك</option>
+                        </select>
+                    </div>
+                    <div class="f-group">
+                        <label data-i18n="priceLabel">💰 سعر</label>
+                        <input type="number" id="itemPrice" placeholder="25" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="f-group">
+                    <label data-i18n="descLabel">📄 وصف</label>
+                    <textarea id="itemDesc" data-i18n-placeholder="descPlaceholder" placeholder="وصف مختصر..."></textarea>
+                </div>
+                
                 <div class="btn-row">
-                    <button class="btn btn-add" id="btnAdd" onclick="addItem()" data-lang="addBtn">✅ إضافة</button>
-                    <button class="btn btn-save" id="btnUpdate" style="display:none;" onclick="updateItem()" data-lang="saveBtn">💾 حفظ</button>
-                    <button class="btn btn-clr" onclick="resetForm()" data-lang="resetBtn">🔄 جديد</button>
+                    <button class="btn btn-add" id="btnAdd" onclick="addItem()" data-i18n="addBtn">✅ إضافة</button>
+                    <button class="btn btn-save" id="btnUpdate" style="display:none;" onclick="updateItem()" data-i18n="saveBtn">💾 حفظ</button>
+                    <button class="btn btn-clr" onclick="resetForm()" data-i18n="resetBtn">🔄 جديد</button>
                 </div>
             </div>
+            
             <div class="form-box" style="padding:0;overflow:hidden;">
-                <div class="list-head"><span>صورة</span><span>الاسم</span><span>سعر</span><span>تحكم</span></div>
+                <div class="list-head">
+                    <span data-i18n="image">صورة</span>
+                    <span data-i18n="name">الاسم</span>
+                    <span data-i18n="price">سعر</span>
+                    <span data-i18n="control">تحكم</span>
+                </div>
                 <div id="adminList"></div>
             </div>
         </div>
@@ -344,18 +843,13 @@
 
     <div class="toast" id="toast"></div>
 
+    <!-- ============================================================
+    JavaScript
+    ============================================================ -->
     <script>
-        const translations = {
-            ar: { heroSub: 'أشهى المأكولات المحضرة بعناية فائقة', search: 'ابحث عن وجبتك المفضلة...', all: 'الكل', categories: ['وجبات رئيسية','مقبلات','حلويات','مشروبات'], empty: 'لا توجد أصناف متاحة', available: 'متوفر', unavailable: 'غير متوفر', currency: 'د.ع', settings: '⚙️ الإعدادات', darkmode: '🌙 الوضع الليلي', language: '🌐 اللغة', adminBtn: '🔐 لوحة تحكم الإدارة', close: 'إغلاق', passTitle: 'دخول المشرف', loginBtn: '🚀 دخول', cancel: 'إلغاء', wrongPass: '❌ البريد أو كلمة المرور غير صحيحة', formTitle: '➕ إضافة صنف جديد', formTitleEdit: '✏️ تعديل: ', uploadText: 'اضغط لاختيار صورة من الاستديو', nameLabel: '📝 اسم الصنف', catLabel: '📂 تصنيف', priceLabel: '💰 سعر', descLabel: '📄 وصف', addBtn: '✅ إضافة', saveBtn: '💾 حفظ', resetBtn: '🔄 جديد', loading: '⏳ تحميل...', toastAdded: '✅ تمت الإضافة بنجاح!', toastUpdated: '✅ تم التعديل بنجاح!', toastDeleted: '🗑️ تم الحذف!', toastError: '❌ فشل', toastFill: '⚠️ املأ الاسم والسعر', toastImgFail: '❌ فشل رفع الصورة', toastImgType: '⚠️ نوع غير مدعوم', toastImgSize: '⚠️ حجم كبير جداً', confirmDel: '⚠️ متأكد من الحذف؟', noItems: 'فارغ', imgLabel: '📸 صورة من الهاتف' },
-            en: { heroSub: 'Finest cuisine crafted with care', search: 'Search for your favorite meal...', all: 'All', categories: ['Main Dishes','Appetizers','Desserts','Drinks'], empty: 'No items available', available: 'Available', unavailable: 'Unavailable', currency: 'IQD', settings: '⚙️ Settings', darkmode: '🌙 Dark Mode', language: '🌐 Language', adminBtn: '🔐 Admin Panel', close: 'Close', passTitle: 'Admin Login', loginBtn: '🚀 Login', cancel: 'Cancel', wrongPass: '❌ Wrong email or password', formTitle: '➕ Add New Item', formTitleEdit: '✏️ Edit: ', uploadText: 'Tap to choose from gallery', nameLabel: '📝 Item Name', catLabel: '📂 Category', priceLabel: '💰 Price', descLabel: '📄 Description', addBtn: '✅ Add', saveBtn: '💾 Save', resetBtn: '🔄 Reset', loading: '⏳ Loading...', toastAdded: '✅ Added successfully!', toastUpdated: '✅ Updated successfully!', toastDeleted: '🗑️ Deleted!', toastError: '❌ Failed', toastFill: '⚠️ Fill name and price', toastImgFail: '❌ Upload failed', toastImgType: '⚠️ Unsupported type', toastImgSize: '⚠️ File too large', confirmDel: '⚠️ Sure to delete?', noItems: 'Empty', imgLabel: '📸 Image from phone' },
-            ku: { heroSub: 'خۆشترین خواردنەکان بە وردی ئامادەکراون', search: 'بگەڕێ بۆ خواردنی دڵخوازت...', all: 'هەموو', categories: ['ژەمە سەرەکییەکان','پێشخواردن','شیرینی','خواردنەوە'], empty: 'هیچ خواردنێک نییە', available: 'بەردەستە', unavailable: 'بەردەست نییە', currency: 'د.ع', settings: '⚙️ ڕێکخستنەکان', darkmode: '🌙 شەوانە', language: '🌐 زمان', adminBtn: '🔐 پانێڵی بەڕێوەبردن', close: 'داخستن', passTitle: 'چوونەژوورەوە', loginBtn: '🚀 چوونەژوور', cancel: 'پاشگەزبوونەوە', wrongPass: '❌ ئیمەیڵ یان وشەی نهێنی هەڵەیە', formTitle: '➕ زیادکردنی خواردن', formTitleEdit: '✏️ دەستکاری: ', uploadText: 'پەنجە بنێ بۆ هەڵبژاردنی وێنە', nameLabel: '📝 ناوی خواردن', catLabel: '📂 جۆر', priceLabel: '💰 نرخ', descLabel: '📄 پێناسە', addBtn: '✅ زیادکردن', saveBtn: '💾 پاشەکەوت', resetBtn: '🔄 نوێ', loading: '⏳ بارکردن...', toastAdded: '✅ زیادکرا!', toastUpdated: '✅ نوێکرایەوە!', toastDeleted: '🗑️ سڕایەوە!', toastError: '❌ شکستی هێنا', toastFill: '⚠️ ناو و نرخ پڕبکە', toastImgFail: '❌ بارکردنی وێنە شکستی هێنا', toastImgType: '⚠️ جۆری پشتگیری نەکراو', toastImgSize: '⚠️ قەبارەی فایل زۆر گەورەیە', confirmDel: '⚠️ دڵنیایت دەتەوێت بیسڕیتەوە؟', noItems: 'بەتاڵ', imgLabel: '📸 وێنە لە مۆبایل' }
-        };
-
-        let currentLang = localStorage.getItem('menuLang') || 'ar';
-        let isDark = localStorage.getItem('menuDark') !== 'false';
-
-        function t(key) { return translations[currentLang]?.[key] || translations.ar[key] || key; }
-
+        // ============================================================
+        // إعدادات Firebase
+        // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyDToxHcV5WBoW3TyMnjKOzdTn5_8nrxHcI",
             authDomain: "wevaz-e716b.firebaseapp.com",
@@ -363,165 +857,707 @@
             projectId: "wevaz-e716b",
             storageBucket: "wevaz-e716b.firebasestorage.app",
             messagingSenderId: "11662784893",
-            appId: "1:11662784893:web:24d284abd3096c2e873414"
+            appId: "1:11662784893:web:24d284abd3096c2e873414",
+            measurementId: "G-EVLFHWE125"
         };
-        const IMGBB_KEY = "da3f49b21529668b440b1a7ac820fecf";
+
         const ADMIN_EMAIL = "WAVEZ.ahmEd@gmail.com";
         const ADMIN_PASS = "Wavez5";
+        const IMGBB_KEY = "da3f49b21529668b440b1a7ac820fecf";
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore().collection('menuItems');
 
-        let items = [], cat = 'all', file = null;
+        // ============================================================
+        // الترجمة الكاملة
+        // ============================================================
+        const translations = {
+            ar: {
+                badge: '✦ Premium Quality',
+                heroSub: 'أشهى المأكولات المحضرة بعناية فائقة',
+                search: 'ابحث عن وجبتك المفضلة...',
+                all: 'الكل',
+                empty: 'لا توجد أطباق متاحة',
+                available: 'متوفر',
+                unavailable: 'غير متوفر',
+                currency: 'د.ع',
+                settingsTitle: '⚙️ الإعدادات',
+                darkMode: '🌙 الوضع الليلي',
+                language: '🌐 اللغة',
+                adminBtn: '🔐 لوحة تحكم الإدارة',
+                close: 'إغلاق',
+                loginTitle: 'دخول المشرف',
+                email: 'البريد الإلكتروني',
+                password: 'كلمة المرور',
+                loginBtn: '🚀 دخول',
+                cancel: 'إلغاء',
+                wrongPass: '❌ البريد الإلكتروني أو كلمة المرور غير صحيحة',
+                adminPanelTitle: '⚙️ لوحة التحكم',
+                addItemTitle: '➕ إضافة صنف جديد',
+                editTitle: '✏️ تعديل',
+                imageLabel: '📸 صورة من الهاتف',
+                uploadText: 'اضغط لاختيار صورة من الاستديو',
+                nameLabel: '📝 اسم الصنف',
+                namePlaceholder: 'برجر دجاج',
+                categoryLabel: '📂 تصنيف',
+                priceLabel: '💰 سعر',
+                descLabel: '📄 وصف',
+                descPlaceholder: 'وصف مختصر...',
+                addBtn: '✅ إضافة',
+                saveBtn: '💾 حفظ',
+                resetBtn: '🔄 جديد',
+                image: 'صورة',
+                name: 'الاسم',
+                price: 'سعر',
+                control: 'تحكم',
+                toastAdded: '✅ تمت الإضافة بنجاح!',
+                toastUpdated: '✅ تم التعديل بنجاح!',
+                toastDeleted: '🗑️ تم الحذف!',
+                toastError: '❌ فشل',
+                toastFill: '⚠️ املأ الاسم والسعر',
+                toastImgFail: '❌ فشل رفع الصورة',
+                toastImgType: '⚠️ نوع غير مدعوم',
+                toastImgSize: '⚠️ حجم كبير جداً',
+                confirmDel: '⚠️ متأكد من الحذف؟',
+                noItems: 'فارغ'
+            },
+            en: {
+                badge: '✦ Premium Quality',
+                heroSub: 'Finest cuisine crafted with care',
+                search: 'Search for your favorite meal...',
+                all: 'All',
+                empty: 'No items available',
+                available: 'Available',
+                unavailable: 'Unavailable',
+                currency: 'IQD',
+                settingsTitle: '⚙️ Settings',
+                darkMode: '🌙 Dark Mode',
+                language: '🌐 Language',
+                adminBtn: '🔐 Admin Panel',
+                close: 'Close',
+                loginTitle: 'Admin Login',
+                email: 'Email',
+                password: 'Password',
+                loginBtn: '🚀 Login',
+                cancel: 'Cancel',
+                wrongPass: '❌ Wrong email or password',
+                adminPanelTitle: '⚙️ Admin Panel',
+                addItemTitle: '➕ Add New Item',
+                editTitle: '✏️ Edit',
+                imageLabel: '📸 Image from phone',
+                uploadText: 'Tap to choose from gallery',
+                nameLabel: '📝 Item Name',
+                namePlaceholder: 'Chicken Burger',
+                categoryLabel: '📂 Category',
+                priceLabel: '💰 Price',
+                descLabel: '📄 Description',
+                descPlaceholder: 'Brief description...',
+                addBtn: '✅ Add',
+                saveBtn: '💾 Save',
+                resetBtn: '🔄 Reset',
+                image: 'Image',
+                name: 'Name',
+                price: 'Price',
+                control: 'Control',
+                toastAdded: '✅ Added successfully!',
+                toastUpdated: '✅ Updated successfully!',
+                toastDeleted: '🗑️ Deleted!',
+                toastError: '❌ Failed',
+                toastFill: '⚠️ Fill name and price',
+                toastImgFail: '❌ Upload failed',
+                toastImgType: '⚠️ Unsupported type',
+                toastImgSize: '⚠️ File too large',
+                confirmDel: '⚠️ Sure to delete?',
+                noItems: 'Empty'
+            },
+            ku: {
+                badge: '✦ Premium Quality',
+                heroSub: 'خۆشترین خواردنەکان بە وردی ئامادەکراون',
+                search: 'بگەڕێ بۆ خواردنی دڵخوازت...',
+                all: 'هەموو',
+                empty: 'هیچ خواردنێک نییە',
+                available: 'بەردەستە',
+                unavailable: 'بەردەست نییە',
+                currency: 'د.ع',
+                settingsTitle: '⚙️ ڕێکخستنەکان',
+                darkMode: '🌙 شەوانە',
+                language: '🌐 زمان',
+                adminBtn: '🔐 پانێڵی بەڕێوەبردن',
+                close: 'داخستن',
+                loginTitle: 'چوونەژوورەوە',
+                email: 'ئیمەیڵ',
+                password: 'وشەی نهێنی',
+                loginBtn: '🚀 چوونەژوور',
+                cancel: 'پاشگەزبوونەوە',
+                wrongPass: '❌ ئیمەیڵ یان وشەی نهێنی هەڵەیە',
+                adminPanelTitle: '⚙️ پانێڵی بەڕێوەبردن',
+                addItemTitle: '➕ زیادکردنی خواردن',
+                editTitle: '✏️ دەستکاری',
+                imageLabel: '📸 وێنە لە مۆبایل',
+                uploadText: 'پەنجە بنێ بۆ هەڵبژاردنی وێنە',
+                nameLabel: '📝 ناوی خواردن',
+                namePlaceholder: 'برگەری مریشک',
+                categoryLabel: '📂 جۆر',
+                priceLabel: '💰 نرخ',
+                descLabel: '📄 پێناسە',
+                descPlaceholder: 'پێناسەی کورت...',
+                addBtn: '✅ زیادکردن',
+                saveBtn: '💾 پاشەکەوت',
+                resetBtn: '🔄 نوێ',
+                image: 'وێنە',
+                name: 'ناو',
+                price: 'نرخ',
+                control: 'کۆنتڕۆڵ',
+                toastAdded: '✅ زیادکرا!',
+                toastUpdated: '✅ نوێکرایەوە!',
+                toastDeleted: '🗑️ سڕایەوە!',
+                toastError: '❌ شکستی هێنا',
+                toastFill: '⚠️ ناو و نرخ پڕبکە',
+                toastImgFail: '❌ بارکردنی وێنە شکستی هێنا',
+                toastImgType: '⚠️ جۆری پشتگیری نەکراو',
+                toastImgSize: '⚠️ قەبارەی فایل زۆر گەورەیە',
+                confirmDel: '⚠️ دڵنیایت دەتەوێت بیسڕیتەوە؟',
+                noItems: 'بەتاڵ'
+            }
+        };
 
-        function applyDarkMode() {
-            if (isDark) { document.body.classList.remove('light-mode'); document.getElementById('darkToggle').classList.add('on'); }
-            else { document.body.classList.add('light-mode'); document.getElementById('darkToggle').classList.remove('on'); }
-            localStorage.setItem('menuDark', isDark);
+        // ============================================================
+        // المتغيرات العامة
+        // ============================================================
+        let items = [];
+        let currentCat = 'all';  // التصنيف الحالي (يُستخدم للمقارنة)
+        let isLoading = true;
+        let file = null;
+        let currentLang = localStorage.getItem('lang') || 'ar';
+        let isDark = localStorage.getItem('dark') !== 'false';
+
+        // ============================================================
+        // دالة الترجمة
+        // ============================================================
+        function t(key) {
+            return translations[currentLang]?.[key] || translations.ar[key] || key;
         }
-        function toggleDarkMode() { isDark = !isDark; applyDarkMode(); }
 
-        function changeLanguage(lang) {
-            currentLang = lang; localStorage.setItem('menuLang', lang);
-            document.documentElement.lang = lang;
-            document.documentElement.dir = lang === 'ar' || lang === 'ku' ? 'rtl' : 'ltr';
-            document.body.style.fontFamily = lang === 'en' ? 'var(--font-en)' : 'var(--font-ar)';
-            updateUITexts(); showMenu();
-            if (document.getElementById('adminPanel').classList.contains('show')) showAdminList();
+        // ============================================================
+        // دالة الحصول على النص المترجم لـ "الكل"
+        // ============================================================
+        function getAllText() {
+            return t('all');
         }
 
-        function updateUITexts() {
-            document.querySelectorAll('[data-lang]').forEach(el => {
-                const key = el.getAttribute('data-lang');
-                if (el.hasAttribute('data-lang-placeholder')) el.placeholder = t(el.getAttribute('data-lang-placeholder'));
-                else if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') el.textContent = t(key);
+        // ============================================================
+        // تطبيق اللغة على الواجهة
+        // ============================================================
+        function applyLanguage() {
+            const isRTL = currentLang === 'ar' || currentLang === 'ku';
+            document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+            document.documentElement.lang = currentLang;
+            document.body.classList.toggle('lang-en', currentLang === 'en');
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.textContent = t(key);
             });
+            
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                el.placeholder = t(key);
+            });
+            
             document.getElementById('langSelect').value = currentLang;
+            
+            // إعادة تعيين التصنيف إلى "الكل" المترجم
+            currentCat = getAllText();
+            
+            if (!isLoading) showMenu();
         }
 
-        function openSettings() { document.getElementById('settingsModal').classList.add('show'); document.getElementById('langSelect').value = currentLang; updateUITexts(); }
-        function closeSettings() { document.getElementById('settingsModal').classList.remove('show'); }
-        function openPassFromSettings() { closeSettings(); document.getElementById('passModal').classList.add('show'); document.getElementById('emailInput').value = ''; document.getElementById('passInput').value = ''; document.getElementById('errMsg').style.display = 'none'; setTimeout(() => document.getElementById('emailInput').focus(), 200); }
-
-        function toast(m) { const el = document.getElementById('toast'); el.textContent = m; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 2800); }
-
-        async function uploadImg(f) {
-            const pb = document.getElementById('progBar'), pf = document.getElementById('progFill');
-            pb.style.display = 'block'; pf.style.width = '30%';
-            const fd = new FormData(); fd.append('image', f);
-            const r = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
-            pf.style.width = '80%'; const d = await r.json();
-            if (d.success) { pf.style.width = '100%'; setTimeout(() => pb.style.display = 'none', 400); return d.data.url; }
-            throw new Error('فشل');
+        // ============================================================
+        // دالات العرض الأساسية
+        // ============================================================
+        function renderSkeletons() {
+            const grid = document.getElementById('menuGrid');
+            grid.innerHTML = '';
+            const count = window.innerWidth < 480 ? 4 : 6;
+            for (let i = 0; i < count; i++) {
+                grid.innerHTML += `
+                    <div class="skeleton" style="animation-delay: ${i * 0.04}s">
+                        <div class="skeleton-img"></div>
+                        <div class="skeleton-body">
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line short"></div>
+                        </div>
+                    </div>
+                `;
+            }
         }
 
-        function handleFile(e) {
-            const f = e.target.files[0]; if (!f) return;
-            if (!['image/jpeg','image/png','image/webp'].includes(f.type)) { toast(t('toastImgType')); return; }
-            if (f.size > 5e6) { toast(t('toastImgSize')); return; }
-            file = f; const r = new FileReader();
-            r.onload = ev => {
-                document.getElementById('previewImg').src = ev.target.result;
-                document.getElementById('previewImg').style.display = 'block';
-                const fb = document.getElementById('fileBox');
-                fb.classList.add('ok'); fb.querySelector('.ftxt').textContent = f.name; fb.querySelector('.fico').textContent = '✅';
-            };
-            r.readAsDataURL(f);
-        }
-
-        async function loadData() {
-            document.getElementById('menuGrid').innerHTML = `<div style="text-align:center;padding:40px;color:var(--text2);">${t('loading')}</div>`;
-            const s = await db.orderBy('createdAt', 'desc').get();
-            items = []; s.forEach(d => items.push({ fid: d.id, ...d.data() }));
-            showMenu(); if (document.getElementById('adminPanel').classList.contains('show')) showAdminList();
+        function renderItems(itemsToShow) {
+            const grid = document.getElementById('menuGrid');
+            grid.innerHTML = '';
+            if (!itemsToShow || itemsToShow.length === 0) {
+                grid.innerHTML = `<div class="empty"><div class="empty-icon">🍽️</div>${t('empty')}</div>`;
+                return;
+            }
+            itemsToShow.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = `card ${item.available === false ? 'off' : ''}`;
+                card.style.animationDelay = `${Math.min(idx * 0.03, 0.3)}s`;
+                card.innerHTML = `
+                    <div class="card-img-wrap">
+                        <img src="${item.image || 'https://placehold.co/400x250/1a1a35/666'}" 
+                             onerror="this.src='https://placehold.co/400x250/1a1a35/666'" 
+                             loading="lazy" decoding="async">
+                        <div class="card-cat">${item.category || ''}</div>
+                        <div class="card-badge ${item.available !== false ? 'badge-on' : 'badge-off'}">${item.available !== false ? t('available') : t('unavailable')}</div>
+                    </div>
+                    <div class="card-body">
+                        <h3>${item.name || 'بدون اسم'}</h3>
+                        <p>${item.description || ''}</p>
+                        <span class="price">${item.price || 0} ${t('currency')}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
         }
 
         function showMenu() {
-            const g = document.getElementById('menuGrid'), e = document.getElementById('emptyMsg');
-            const b = document.getElementById('catBar'), q = document.getElementById('searchInput').value.toLowerCase();
-            if (!items.length) { g.innerHTML = ''; e.style.display = 'block'; b.innerHTML = ''; return; }
-            e.style.display = 'none';
+            if (isLoading) return;
             
-            const allCats = [t('all'), ...new Set(items.map(i => i.category || 'بدون'))];
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+            const catBar = document.getElementById('catBar');
             
-            b.innerHTML = allCats.map(c => {
-                return `<button class="cat-btn ${c === cat ? 'active' : ''}" onclick="cat='${c}';showMenu();">${c}</button>`;
-            }).join('');
+            // بناء التصنيفات مع الترجمة
+            const allCats = [getAllText(), ...new Set(items.map(i => i.category || 'بدون'))];
             
-            let f = items;
-            if (cat !== 'all' && cat !== t('all')) f = f.filter(i => (i.category || 'بدون') === cat);
-            if (q) f = f.filter(i => (i.name||'').toLowerCase().includes(q) || (i.description||'').toLowerCase().includes(q));
+            // التأكد أن التصنيف الحالي هو "الكل" المترجم
+            // إذا كان التصنيف الحالي لا يطابق أي من التصنيفات، نعيد تعيينه إلى "الكل"
+            if (!allCats.includes(currentCat)) {
+                currentCat = getAllText();
+            }
             
-            if (!f.length) { g.innerHTML = ''; e.style.display = 'block'; }
-            else g.innerHTML = f.map((i,idx) => `<div class="card ${!i.available?'off':''}" style="animation-delay:${idx*0.06}s"><div class="card-img-wrap"><img src="${i.image||'https://placehold.co/400x250/1a1a35/666'}" onerror="this.src='https://placehold.co/400x250/1a1a35/666'"><div class="card-img-overlay"></div><div class="card-cat">${i.category||''}</div><div class="card-badge ${i.available?'badge-on':'badge-off'}">${i.available?t('available'):t('unavailable')}</div></div><div class="card-body"><h3>${i.name}</h3><p>${i.description||''}</p><div class="card-foot"><span class="price price-green">${i.price||0} ${t('currency')}</span></div></div></div>`).join('');
+            catBar.innerHTML = allCats.map(c => 
+                `<button class="cat-btn ${c === currentCat ? 'active' : ''}" onclick="currentCat='${c}';showMenu();">${c}</button>`
+            ).join('');
+            
+            // تصفية
+            let filtered = items;
+            if (currentCat !== getAllText()) {
+                filtered = filtered.filter(i => (i.category || 'بدون') === currentCat);
+            }
+            if (searchVal) {
+                filtered = filtered.filter(i => 
+                    (i.name || '').toLowerCase().includes(searchVal) || 
+                    (i.description || '').toLowerCase().includes(searchVal)
+                );
+            }
+            
+            renderItems(filtered);
+        }
+
+        function filterItems() {
+            if (!isLoading) showMenu();
+        }
+
+        // ============================================================
+        // تحميل البيانات من Firebase
+        // ============================================================
+        async function loadData() {
+            renderSkeletons();
+            isLoading = true;
+
+            try {
+                const cached = localStorage.getItem('menuCache');
+                const cachedTime = localStorage.getItem('menuCacheTime');
+                if (cached && cachedTime) {
+                    const timeDiff = Date.now() - parseInt(cachedTime);
+                    if (timeDiff < 300000) {
+                        items = JSON.parse(cached);
+                        isLoading = false;
+                        // تعيين التصنيف إلى "الكل" المترجم
+                        currentCat = getAllText();
+                        showMenu();
+                        refreshInBackground();
+                        return;
+                    }
+                }
+            } catch (e) { /* تجاهل */ }
+
+            try {
+                const snapshot = await db.orderBy('createdAt', 'desc').get();
+                items = [];
+                snapshot.forEach(doc => items.push({ fid: doc.id, ...doc.data() }));
+                
+                localStorage.setItem('menuCache', JSON.stringify(items));
+                localStorage.setItem('menuCacheTime', Date.now().toString());
+                
+                isLoading = false;
+                // تعيين التصنيف إلى "الكل" المترجم
+                currentCat = getAllText();
+                showMenu();
+            } catch (error) {
+                console.warn('Firebase error:', error);
+                try {
+                    const cached = localStorage.getItem('menuCache');
+                    if (cached) {
+                        items = JSON.parse(cached);
+                        isLoading = false;
+                        currentCat = getAllText();
+                        showMenu();
+                        toast('📡 ' + (currentLang === 'en' ? 'Cached data' : currentLang === 'ku' ? 'داتای پاشەکەوتکراو' : 'بيانات مخزنة مؤقتاً'));
+                        return;
+                    }
+                } catch (e) { /* تجاهل */ }
+                
+                isLoading = false;
+                document.getElementById('menuGrid').innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">📡</div>
+                        <p>${currentLang === 'en' ? 'Failed to load data' : currentLang === 'ku' ? 'بارکردنی داتا شکستی هێنا' : 'تعذر تحميل البيانات'}</p>
+                        <button onclick="loadData()" style="margin-top:12px;padding:10px 28px;border-radius:50px;background:var(--primary);color:white;border:none;font-family:inherit;font-size:14px;cursor:pointer;">🔄 ${currentLang === 'en' ? 'Retry' : currentLang === 'ku' ? 'هەوڵبدەرەوە' : 'إعادة المحاولة'}</button>
+                    </div>
+                `;
+            }
+        }
+
+        async function refreshInBackground() {
+            try {
+                const snapshot = await db.orderBy('createdAt', 'desc').get();
+                const newItems = [];
+                snapshot.forEach(doc => newItems.push({ fid: doc.id, ...doc.data() }));
+                if (newItems.length > 0) {
+                    items = newItems;
+                    localStorage.setItem('menuCache', JSON.stringify(items));
+                    localStorage.setItem('menuCacheTime', Date.now().toString());
+                    // لا نغير التصنيف الحالي
+                    showMenu();
+                }
+            } catch (e) { /* تجاهل */ }
+        }
+
+        // ============================================================
+        // دالات الإعدادات
+        // ============================================================
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('show');
+            document.getElementById('langSelect').value = currentLang;
+        }
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('show');
+        }
+
+        function toggleDarkMode() {
+            isDark = !isDark;
+            document.body.classList.toggle('light-mode', !isDark);
+            document.getElementById('darkToggle').classList.toggle('on', isDark);
+            localStorage.setItem('dark', isDark);
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            applyLanguage();
+            // بعد تغيير اللغة، نعيد تعيين التصنيف إلى "الكل" المترجم
+            currentCat = getAllText();
+            if (!isLoading) showMenu();
+        }
+
+        // ============================================================
+        // دالات تسجيل الدخول
+        // ============================================================
+        function openAdminLogin() {
+            closeSettings();
+            document.getElementById('loginModal').classList.add('show');
+            document.getElementById('errMsg').style.display = 'none';
+            document.getElementById('emailInput').value = '';
+            document.getElementById('passInput').value = '';
+            applyLanguage();
+        }
+        function closeLogin() {
+            document.getElementById('loginModal').classList.remove('show');
+        }
+
+        function checkLogin() {
+            const email = document.getElementById('emailInput').value.trim();
+            const pass = document.getElementById('passInput').value;
+            if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
+                closeLogin();
+                document.getElementById('adminPanel').classList.add('show');
+                document.body.style.overflow = 'hidden';
+                showAdminList();
+                applyLanguage();
+            } else {
+                document.getElementById('errMsg').style.display = 'block';
+            }
+        }
+
+        document.getElementById('passInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkLogin();
+        });
+        document.getElementById('emailInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('passInput').focus();
+        });
+
+        // ============================================================
+        // دالات لوحة التحكم
+        // ============================================================
+        function closeAdmin() {
+            document.getElementById('adminPanel').classList.remove('show');
+            document.body.style.overflow = '';
+            resetForm();
+            loadData();
         }
 
         function showAdminList() {
-            const c = document.getElementById('adminList');
-            if (!items.length) { c.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text2);">${t('noItems')}</div>`; return; }
-            c.innerHTML = items.map(i => `<div class="list-row"><img src="${i.image||'https://placehold.co/40/333/666'}" onerror="this.src='https://placehold.co/40/333/666'"><div class="linfo"><h4>${i.name}</h4><span>${i.category||''} · ${i.available?t('available'):t('unavailable')}</span></div><div class="lprice">${i.price||0} ${t('currency')}</div><div class="lacts"><button class="btn-xs ed" onclick="editItem('${i.fid}')">✏️</button><button class="btn-xs dl" onclick="delItem('${i.fid}')">🗑️</button></div></div>`).join('');
+            const container = document.getElementById('adminList');
+            if (!items.length) {
+                container.innerHTML = `<div style="padding:16px;text-align:center;color:var(--text2);">${t('noItems')}</div>`;
+                return;
+            }
+            container.innerHTML = items.map(i => `
+                <div class="list-row">
+                    <img src="${i.image || 'https://placehold.co/40/333/666'}" onerror="this.src='https://placehold.co/40/333/666'" loading="lazy">
+                    <div class="linfo">
+                        <h4>${i.name}</h4>
+                        <span>${i.category || ''} · ${i.available !== false ? t('available') : t('unavailable')}</span>
+                    </div>
+                    <div class="lprice">${i.price || 0} ${t('currency')}</div>
+                    <div class="lacts">
+                        <button class="btn-xs ed" onclick="editItem('${i.fid}')">✏️</button>
+                        <button class="btn-xs dl" onclick="delItem('${i.fid}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
         }
 
+        // ============================================================
+        // رفع الصور
+        // ============================================================
+        async function uploadImg(f) {
+            const pb = document.getElementById('progBar'), pf = document.getElementById('progFill');
+            pb.style.display = 'block';
+            pf.style.width = '30%';
+            
+            const fd = new FormData();
+            fd.append('image', f);
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
+                method: 'POST',
+                body: fd
+            });
+            pf.style.width = '80%';
+            const data = await res.json();
+            if (data.success) {
+                pf.style.width = '100%';
+                setTimeout(() => pb.style.display = 'none', 400);
+                return data.data.url;
+            }
+            throw new Error('فشل رفع الصورة');
+        }
+
+        function handleFile(e) {
+            const f = e.target.files[0];
+            if (!f) return;
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.type)) {
+                toast(t('toastImgType'));
+                return;
+            }
+            if (f.size > 3e6) {
+                toast(t('toastImgSize'));
+                return;
+            }
+            file = f;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                document.getElementById('previewImg').src = ev.target.result;
+                document.getElementById('previewImg').style.display = 'block';
+                const box = document.getElementById('fileBox');
+                box.classList.add('ok');
+                box.querySelector('.ftxt').textContent = f.name;
+                box.querySelector('.fico').textContent = '✅';
+            };
+            reader.readAsDataURL(f);
+        }
+
+        // ============================================================
+        // إضافة وتعديل وحذف
+        // ============================================================
         async function addItem() {
-            const n = document.getElementById('itemName').value.trim(), p = +document.getElementById('itemPrice').value;
-            if (!n || isNaN(p)) { toast(t('toastFill')); return; }
-            let img = ''; if (file) { try { document.getElementById('btnAdd').textContent = '⏳...'; document.getElementById('btnAdd').disabled = true; img = await uploadImg(file); } catch { toast(t('toastImgFail')); resetBtn(); return; } }
-            try { document.getElementById('btnAdd').textContent = '⏳...'; await db.add({ name: n, category: document.getElementById('itemCat').value, description: document.getElementById('itemDesc').value.trim() || '', price: p, image: img || 'https://placehold.co/400x250/1a1a35/666', available: true, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); resetForm(); await loadData(); toast(t('toastAdded')); } catch { toast(t('toastError')); }
+            const name = document.getElementById('itemName').value.trim();
+            const price = parseFloat(document.getElementById('itemPrice').value);
+            if (!name || isNaN(price)) {
+                toast(t('toastFill'));
+                return;
+            }
+            
+            let img = '';
+            if (file) {
+                try {
+                    document.getElementById('btnAdd').textContent = '⏳...';
+                    document.getElementById('btnAdd').disabled = true;
+                    img = await uploadImg(file);
+                } catch {
+                    toast(t('toastImgFail'));
+                    resetBtn();
+                    return;
+                }
+            }
+            
+            try {
+                document.getElementById('btnAdd').textContent = '⏳...';
+                await db.add({
+                    name: name,
+                    category: document.getElementById('itemCat').value,
+                    description: document.getElementById('itemDesc').value.trim() || '',
+                    price: price,
+                    image: img || 'https://placehold.co/400x250/1a1a35/666',
+                    available: true,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                resetForm();
+                await loadData();
+                toast(t('toastAdded'));
+            } catch {
+                toast(t('toastError'));
+            }
             resetBtn();
         }
-        function resetBtn() { document.getElementById('btnAdd').textContent = t('addBtn'); document.getElementById('btnAdd').disabled = false; }
+
+        function resetBtn() {
+            document.getElementById('btnAdd').textContent = t('addBtn');
+            document.getElementById('btnAdd').disabled = false;
+        }
 
         function editItem(fid) {
-            const i = items.find(x => x.fid === fid); if (!i) return;
-            document.getElementById('editId').value = fid; document.getElementById('itemName').value = i.name || '';
-            document.getElementById('itemCat').value = i.category || 'وجبات سريعة'; document.getElementById('itemDesc').value = i.description || '';
-            document.getElementById('itemPrice').value = i.price || ''; if (i.image?.startsWith('http')) { document.getElementById('previewImg').src = i.image; document.getElementById('previewImg').style.display = 'block'; }
-            file = null; document.getElementById('formTitle').textContent = t('formTitleEdit') + i.name;
-            document.getElementById('btnAdd').style.display = 'none'; document.getElementById('btnUpdate').style.display = 'block';
+            const item = items.find(i => i.fid === fid);
+            if (!item) return;
+            
+            document.getElementById('editId').value = fid;
+            document.getElementById('itemName').value = item.name || '';
+            document.getElementById('itemCat').value = item.category || 'وجبات سريعة';
+            document.getElementById('itemDesc').value = item.description || '';
+            document.getElementById('itemPrice').value = item.price || '';
+            if (item.image?.startsWith('http')) {
+                document.getElementById('previewImg').src = item.image;
+                document.getElementById('previewImg').style.display = 'block';
+            }
+            file = null;
+            document.getElementById('formTitle').textContent = t('editTitle') + ': ' + item.name;
+            document.getElementById('btnAdd').style.display = 'none';
+            document.getElementById('btnUpdate').style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function updateItem() {
-            const fid = document.getElementById('editId').value; if (!fid) return;
-            const n = document.getElementById('itemName').value.trim(), p = +document.getElementById('itemPrice').value;
-            if (!n || isNaN(p)) { toast(t('toastFill')); return; }
-            let img = document.getElementById('previewImg').src; if (file) { try { document.getElementById('btnUpdate').textContent = '⏳...'; document.getElementById('btnUpdate').disabled = true; img = await uploadImg(file); } catch { toast(t('toastImgFail')); resetUpdateBtn(); return; } }
-            try { document.getElementById('btnUpdate').textContent = '⏳...'; await db.doc(fid).update({ name: n, category: document.getElementById('itemCat').value, description: document.getElementById('itemDesc').value.trim() || '', price: p, image: img || 'https://placehold.co/400x250/1a1a35/666', updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); resetForm(); await loadData(); toast(t('toastUpdated')); } catch { toast(t('toastError')); }
+            const fid = document.getElementById('editId').value;
+            if (!fid) return;
+            
+            const name = document.getElementById('itemName').value.trim();
+            const price = parseFloat(document.getElementById('itemPrice').value);
+            if (!name || isNaN(price)) {
+                toast(t('toastFill'));
+                return;
+            }
+            
+            let img = document.getElementById('previewImg').src;
+            if (file) {
+                try {
+                    document.getElementById('btnUpdate').textContent = '⏳...';
+                    document.getElementById('btnUpdate').disabled = true;
+                    img = await uploadImg(file);
+                } catch {
+                    toast(t('toastImgFail'));
+                    resetUpdateBtn();
+                    return;
+                }
+            }
+            
+            try {
+                document.getElementById('btnUpdate').textContent = '⏳...';
+                await db.doc(fid).update({
+                    name: name,
+                    category: document.getElementById('itemCat').value,
+                    description: document.getElementById('itemDesc').value.trim() || '',
+                    price: price,
+                    image: img || 'https://placehold.co/400x250/1a1a35/666',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                resetForm();
+                await loadData();
+                toast(t('toastUpdated'));
+            } catch {
+                toast(t('toastError'));
+            }
             resetUpdateBtn();
         }
-        function resetUpdateBtn() { document.getElementById('btnUpdate').textContent = t('saveBtn'); document.getElementById('btnUpdate').disabled = false; }
 
-        async function delItem(fid) { if (!confirm(t('confirmDel'))) return; try { await db.doc(fid).delete(); await loadData(); toast(t('toastDeleted')); } catch { toast(t('toastError')); } }
+        function resetUpdateBtn() {
+            document.getElementById('btnUpdate').textContent = t('saveBtn');
+            document.getElementById('btnUpdate').disabled = false;
+        }
+
+        async function delItem(fid) {
+            if (!confirm(t('confirmDel'))) return;
+            try {
+                await db.doc(fid).delete();
+                await loadData();
+                toast(t('toastDeleted'));
+            } catch {
+                toast(t('toastError'));
+            }
+        }
 
         function resetForm() {
-            document.getElementById('editId').value = ''; document.getElementById('itemName').value = '';
-            document.getElementById('itemCat').value = 'وجبات سريعة'; document.getElementById('itemDesc').value = '';
-            document.getElementById('itemPrice').value = ''; document.getElementById('previewImg').style.display = 'none';
-            document.getElementById('fileInput').value = ''; document.getElementById('progBar').style.display = 'none'; file = null;
-            const fb = document.getElementById('fileBox'); fb.classList.remove('ok'); fb.querySelector('.ftxt').textContent = t('uploadText'); fb.querySelector('.fico').textContent = '📁';
-            document.getElementById('formTitle').textContent = t('formTitle'); document.getElementById('btnAdd').style.display = 'block'; document.getElementById('btnUpdate').style.display = 'none';
-            resetBtn(); resetUpdateBtn();
+            document.getElementById('editId').value = '';
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemCat').value = 'وجبات سريعة';
+            document.getElementById('itemDesc').value = '';
+            document.getElementById('itemPrice').value = '';
+            document.getElementById('previewImg').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('progBar').style.display = 'none';
+            file = null;
+            
+            const box = document.getElementById('fileBox');
+            box.classList.remove('ok');
+            box.querySelector('.ftxt').textContent = t('uploadText');
+            box.querySelector('.fico').textContent = '📁';
+            
+            document.getElementById('formTitle').textContent = t('addItemTitle');
+            document.getElementById('btnAdd').style.display = 'block';
+            document.getElementById('btnUpdate').style.display = 'none';
+            resetBtn();
+            resetUpdateBtn();
         }
 
-        function closePassModal() { document.getElementById('passModal').classList.remove('show'); }
-        function checkPass() {
-            const email = document.getElementById('emailInput').value.trim();
-            const pass = document.getElementById('passInput').value;
-            if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
-                closePassModal(); document.getElementById('adminPanel').classList.add('show');
-                showAdminList(); document.body.style.overflow = 'hidden';
-            } else { document.getElementById('errMsg').style.display = 'block'; }
+        // ============================================================
+        // Toast
+        // ============================================================
+        function toast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('on');
+            clearTimeout(el._timer);
+            el._timer = setTimeout(() => el.classList.remove('on'), 2500);
         }
-        function closeAdmin() { document.getElementById('adminPanel').classList.remove('show'); document.body.style.overflow = ''; resetForm(); loadData(); }
 
-        document.getElementById('settingsModal').addEventListener('click', function(e) { if (e.target === this) closeSettings(); });
-        document.getElementById('passModal').addEventListener('click', function(e) { if (e.target === this) closePassModal(); });
-        document.getElementById('passInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') checkPass(); });
+        // ============================================================
+        // بدء التطبيق
+        // ============================================================
+        document.body.classList.toggle('light-mode', !isDark);
+        document.getElementById('darkToggle').classList.toggle('on', isDark);
 
-        document.documentElement.lang = currentLang;
-        document.documentElement.dir = currentLang === 'en' ? 'ltr' : 'rtl';
-        document.body.style.fontFamily = currentLang === 'en' ? 'var(--font-en)' : 'var(--font-ar)';
-        applyDarkMode(); changeLanguage(currentLang); loadData();
+        // تعيين التصنيف الافتراضي إلى "الكل" المترجم
+        currentCat = getAllText();
+
+        applyLanguage();
+        loadData();
+
+        document.getElementById('settingsModal').addEventListener('click', function(e) {
+            if (e.target === this) closeSettings();
+        });
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) closeLogin();
+        });
     </script>
 </body>
 </html>
