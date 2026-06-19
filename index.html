@@ -57,9 +57,6 @@
         
         .container { max-width: 800px; margin: 0 auto; }
         
-        /* ============================================================
-           رأس الصفحة
-           ============================================================ */
         .header {
             display: flex;
             justify-content: space-between;
@@ -119,9 +116,6 @@
             stroke-linejoin: round;
         }
         
-        /* ============================================================
-           زر الرجوع
-           ============================================================ */
         .back-btn {
             display: none;
             align-items: center;
@@ -151,9 +145,6 @@
             stroke-linejoin: round;
         }
         
-        /* ============================================================
-           الهيرو
-           ============================================================ */
         .hero {
             text-align: center;
             padding: 16px 10px 10px;
@@ -197,9 +188,6 @@
             margin: 0 auto;
         }
         
-        /* ============================================================
-           البحث
-           ============================================================ */
         .search-wrapper { margin: 10px 0 8px; position: relative; }
         .search {
             width: 100%; padding: 12px 16px 12px 44px;
@@ -217,9 +205,6 @@
             pointer-events: none;
         }
         
-        /* ============================================================
-           شريط التصنيفات الأفقي (الرجوع)
-           ============================================================ */
         .cats-bar-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -257,9 +242,6 @@
             border-color: var(--primary);
         }
         
-        /* ============================================================
-           عنوان الصفحة
-           ============================================================ */
         .section-title {
             font-size: 18px;
             font-weight: 700;
@@ -285,9 +267,6 @@
             color: var(--text);
         }
         
-        /* ============================================================
-           بطاقات التصنيفات (الصفحة الرئيسية)
-           ============================================================ */
         .cats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -338,9 +317,6 @@
             font-weight: 500;
         }
         
-        /* ============================================================
-           شبكة الأطباق (عند اختيار تصنيف)
-           ============================================================ */
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -423,9 +399,6 @@
             color: var(--accent);
         }
         
-        /* ============================================================
-           Skeleton Loading
-           ============================================================ */
         .skeleton-cat {
             background: var(--surface);
             border-radius: var(--radius-lg);
@@ -459,9 +432,6 @@
         }
         .empty-icon { font-size: 40px; margin-bottom: 8px; }
         
-        /* ============================================================
-           النوافذ المنبثقة
-           ============================================================ */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -784,9 +754,6 @@
         }
         .toast.on { transform: translateX(-50%) translateY(0); }
         
-        /* ============================================================
-           شاشات صغيرة
-           ============================================================ */
         @media (max-width: 400px) {
             .grid { gap: 8px; }
             .card-img-wrap { height: 110px; }
@@ -813,9 +780,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- ============================================================
-        رأس الصفحة
-        ============================================================ -->
         <header class="header">
             <div class="brand">
                 <span class="brand-text-en">WAVES</span>
@@ -831,18 +795,12 @@
             </div>
         </header>
 
-        <!-- ============================================================
-        الهيرو
-        ============================================================ -->
         <div class="hero">
             <div class="hero-badge" data-i18n="badge">✦ Premium Quality</div>
             <h1><span class="wavz-text">ويڤز</span></h1>
             <p data-i18n="heroSub">أشهى المأكولات المحضرة بعناية فائقة</p>
         </div>
 
-        <!-- ============================================================
-        زر الرجوع + شريط البحث
-        ============================================================ -->
         <button class="back-btn" id="backBtn" onclick="goBackToCategories()">
             <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             <span data-i18n="backToCategories">قائمة الأصناف</span>
@@ -853,16 +811,10 @@
             <input type="text" class="search" id="searchInput" data-i18n-placeholder="search" placeholder="ابحث عن وجبتك المفضلة..." oninput="handleSearch()">
         </div>
 
-        <!-- ============================================================
-        شريط التصنيفات الأفقي (تم إرجاعه!)
-        ============================================================ -->
         <div class="cats-bar-wrapper" id="catsBarWrapper">
             <div class="cats-bar" id="catsBar"></div>
         </div>
 
-        <!-- ============================================================
-        عنوان الصفحة
-        ============================================================ -->
         <div id="pageTitle">
             <div class="section-title">
                 <span data-i18n="categoriesTitle">📋 قائمة الأصناف</span>
@@ -873,9 +825,6 @@
             <div class="category-title" id="selectedCategoryName"></div>
         </div>
 
-        <!-- ============================================================
-        المحتوى الرئيسي (تصنيفات أو أطباق)
-        ============================================================ -->
         <div id="categoriesContainer">
             <div class="cats-grid" id="catsGrid"></div>
         </div>
@@ -884,9 +833,6 @@
         </div>
     </div>
 
-    <!-- ============================================================
-    باقي النوافذ (الإعدادات، تسجيل الدخول، لوحة التحكم)
-    ============================================================ -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-box">
             <h3 data-i18n="settingsTitle">⚙️ الإعدادات</h3>
@@ -1075,7 +1021,8 @@
                 toastImgSize: '⚠️ حجم كبير جداً',
                 confirmDel: '⚠️ متأكد من الحذف؟',
                 noItems: 'فارغ',
-                itemsCount: 'صنف'
+                itemsCount: 'صنف',
+                updateError: '❌ فشل التعديل: '
             },
             en: {
                 badge: '✦ Premium Quality',
@@ -1127,7 +1074,8 @@
                 toastImgSize: '⚠️ File too large',
                 confirmDel: '⚠️ Sure to delete?',
                 noItems: 'Empty',
-                itemsCount: 'items'
+                itemsCount: 'items',
+                updateError: '❌ Update failed: '
             },
             ku: {
                 badge: '✦ Premium Quality',
@@ -1179,7 +1127,8 @@
                 toastImgSize: '⚠️ قەبارەی فایل زۆر گەورەیە',
                 confirmDel: '⚠️ دڵنیایت دەتەوێت بیسڕیتەوە؟',
                 noItems: 'بەتاڵ',
-                itemsCount: 'خواردن'
+                itemsCount: 'خواردن',
+                updateError: '❌ نوێکردنەوە شکستی هێنا: '
             }
         };
 
@@ -1191,7 +1140,7 @@
         let file = null;
         let currentLang = localStorage.getItem('lang') || 'ar';
         let isDark = localStorage.getItem('dark') !== 'false';
-        let selectedCategory = null; // null = عرض التصنيفات, string = عرض أطباق هذا التصنيف
+        let selectedCategory = null;
 
         // ============================================================
         // دالة الترجمة
@@ -1265,20 +1214,15 @@
                 return;
             }
             
-            // استخراج التصنيفات الفريدة
-            const categories = ['الكل', ...new Set(items.map(i => i.category || 'بدون'))];
-            
-            // ترجمة "الكل"
             const allText = t('all') || 'الكل';
-            const translatedCategories = categories.map(c => c === 'الكل' ? allText : c);
+            const categories = [allText, ...new Set(items.map(i => i.category || 'بدون'))];
             
-            // تحديد التصنيف النشط
             let activeCat = selectedCategory || allText;
             if (selectedCategory === null) {
                 activeCat = allText;
             }
             
-            bar.innerHTML = translatedCategories.map(c => `
+            bar.innerHTML = categories.map(c => `
                 <button class="cat-bar-btn ${c === activeCat ? 'active' : ''}" onclick="selectCategoryFromBar('${c}')">
                     ${c}
                 </button>
@@ -1292,13 +1236,10 @@
             const allText = t('all') || 'الكل';
             
             if (category === allText) {
-                // العودة لعرض جميع التصنيفات
                 goBackToCategories();
             } else {
-                // عرض أطباق التصنيف المحدد
-                // البحث عن التصنيف الأصلي (لأنه قد يكون مترجماً)
+                // البحث عن التصنيف الأصلي
                 let originalCat = category;
-                // إذا كان التصنيف مترجماً، نبحث عن التصنيف الأصلي في البيانات
                 const categoryMap = {};
                 items.forEach(item => {
                     const cat = item.category || 'بدون';
@@ -1306,21 +1247,14 @@
                         categoryMap[cat] = cat;
                     }
                 });
-                // نتحقق إذا كان التصنيف المحدد موجوداً في الخريطة
-                const found = Object.keys(categoryMap).find(key => key === category);
-                if (found) {
-                    originalCat = found;
-                } else {
-                    // قد يكون التصنيف مترجماً، نحاول المطابقة
-                    for (const key of Object.keys(categoryMap)) {
-                        if (category === key) {
-                            originalCat = key;
-                            break;
-                        }
+                
+                for (const key of Object.keys(categoryMap)) {
+                    if (category === key) {
+                        originalCat = key;
+                        break;
                     }
                 }
                 
-                // إذا لم نجد مطابقة، نستخدم القيمة كما هي
                 selectedCategory = originalCat;
                 renderItemsForCategory(originalCat);
                 updateCatsBar();
@@ -1823,8 +1757,9 @@
                 resetForm();
                 await loadData();
                 toast(t('toastAdded'));
-            } catch {
-                toast(t('toastError'));
+            } catch (error) {
+                console.error('خطأ في الإضافة:', error);
+                toast(t('toastError') + ': ' + error.message);
             }
             resetBtn();
         }
@@ -1836,16 +1771,21 @@
 
         function editItem(fid) {
             const item = items.find(i => i.fid === fid);
-            if (!item) return;
+            if (!item) {
+                toast('❌ العنصر غير موجود');
+                return;
+            }
             
             document.getElementById('editId').value = fid;
             document.getElementById('itemName').value = item.name || '';
             document.getElementById('itemCat').value = item.category || 'وجبات سريعة';
             document.getElementById('itemDesc').value = item.description || '';
             document.getElementById('itemPrice').value = item.price || '';
-            if (item.image?.startsWith('http')) {
+            if (item.image && item.image.startsWith('http')) {
                 document.getElementById('previewImg').src = item.image;
                 document.getElementById('previewImg').style.display = 'block';
+            } else {
+                document.getElementById('previewImg').style.display = 'none';
             }
             file = null;
             document.getElementById('formTitle').textContent = t('editTitle') + ': ' + item.name;
@@ -1854,9 +1794,15 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // ============================================================
+        // ✅ دالة التعديل المُصلحة (مع رسائل خطأ واضحة)
+        // ============================================================
         async function updateItem() {
             const fid = document.getElementById('editId').value;
-            if (!fid) return;
+            if (!fid) {
+                toast('⚠️ لا يوجد معرف للتعديل');
+                return;
+            }
             
             const name = document.getElementById('itemName').value.trim();
             const price = parseFloat(document.getElementById('itemPrice').value);
@@ -1866,21 +1812,43 @@
             }
             
             let img = document.getElementById('previewImg').src;
+            // إذا كانت الصورة هي placeholder، نستخدم الصورة القديمة
+            if (img && img.includes('placehold.co')) {
+                const oldItem = items.find(i => i.fid === fid);
+                if (oldItem && oldItem.image && oldItem.image.startsWith('http')) {
+                    img = oldItem.image;
+                }
+            }
+            
+            // إذا كان هناك ملف جديد
             if (file) {
                 try {
-                    document.getElementById('btnUpdate').textContent = '⏳...';
+                    document.getElementById('btnUpdate').textContent = '⏳ رفع الصورة...';
                     document.getElementById('btnUpdate').disabled = true;
                     img = await uploadImg(file);
-                } catch {
-                    toast(t('toastImgFail'));
+                } catch (error) {
+                    toast(t('toastImgFail') + ': ' + error.message);
                     resetUpdateBtn();
                     return;
                 }
             }
             
             try {
-                document.getElementById('btnUpdate').textContent = '⏳...';
-                await db.doc(fid).update({
+                document.getElementById('btnUpdate').textContent = '⏳ جاري الحفظ...';
+                document.getElementById('btnUpdate').disabled = true;
+                
+                // ✅ التحقق من وجود المستند قبل التحديث
+                const docRef = db.doc(fid);
+                const docSnap = await docRef.get();
+                
+                if (!docSnap.exists) {
+                    toast('❌ المستند غير موجود في قاعدة البيانات');
+                    resetUpdateBtn();
+                    return;
+                }
+                
+                // ✅ تحديث المستند
+                await docRef.update({
                     name: name,
                     category: document.getElementById('itemCat').value,
                     description: document.getElementById('itemDesc').value.trim() || '',
@@ -1888,11 +1856,15 @@
                     image: img || 'https://placehold.co/400x250/1a1a35/666',
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                
+                // ✅ تحديث الواجهة
                 resetForm();
                 await loadData();
                 toast(t('toastUpdated'));
-            } catch {
-                toast(t('toastError'));
+                
+            } catch (error) {
+                console.error('❌ خطأ في التعديل:', error);
+                toast(t('updateError') + error.message);
             }
             resetUpdateBtn();
         }
@@ -1908,8 +1880,9 @@
                 await db.doc(fid).delete();
                 await loadData();
                 toast(t('toastDeleted'));
-            } catch {
-                toast(t('toastError'));
+            } catch (error) {
+                console.error('❌ خطأ في الحذف:', error);
+                toast(t('toastError') + ': ' + error.message);
             }
         }
 
@@ -1944,7 +1917,7 @@
             el.textContent = msg;
             el.classList.add('on');
             clearTimeout(el._timer);
-            el._timer = setTimeout(() => el.classList.remove('on'), 2500);
+            el._timer = setTimeout(() => el.classList.remove('on'), 3000);
         }
 
         // ============================================================
