@@ -524,6 +524,7 @@
         }
         .btn-full:active { transform: scale(0.97); }
         .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--accent); color: #000; }
         .btn-close-modal {
             margin-top: 8px;
             background: var(--surface);
@@ -546,6 +547,19 @@
         }
         .pass-box input:focus { border-color: var(--primary); }
         .err { color: #fd79a8; font-size: 13px; display: none; text-align: center; margin-top: 8px; }
+        
+        .remember-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .remember-buttons .btn-full {
+            flex: 1;
+            min-width: 80px;
+            font-size: 12px;
+            padding: 10px 8px;
+        }
         
         .admin-panel {
             display: none;
@@ -572,18 +586,33 @@
             gap: 8px;
         }
         .admin-bar h3 { font-size: 15px; }
-        .admin-bar button {
+        .admin-bar .admin-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .admin-bar .admin-actions button {
             padding: 6px 16px;
             border-radius: 8px;
             border: none;
-            background: rgba(253,121,168,0.2);
-            color: #fd79a8;
             font-weight: 600;
             cursor: pointer;
             font-family: inherit;
             min-height: 36px;
+            transition: 0.2s;
         }
-        .admin-bar button:active { transform: scale(0.95); }
+        .admin-bar .admin-actions button:active { transform: scale(0.95); }
+        .btn-logout {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        .btn-logout:hover { background: rgba(231, 76, 60, 0.35); }
+        .btn-close-admin {
+            background: rgba(253,121,168,0.2);
+            color: #fd79a8;
+        }
+        .btn-close-admin:hover { background: rgba(253,121,168,0.35); }
         
         .form-box {
             background: var(--surface);
@@ -754,6 +783,15 @@
         }
         .toast.on { transform: translateX(-50%) translateY(0); }
         
+        .session-info {
+            font-size: 11px;
+            color: var(--text2);
+            text-align: center;
+            padding: 4px 0;
+            margin-top: 4px;
+            border-top: 1px solid var(--border);
+        }
+        
         @media (max-width: 400px) {
             .grid { gap: 8px; }
             .card-img-wrap { height: 110px; }
@@ -770,6 +808,7 @@
             .skeleton-cat .skeleton-img { height: 90px; }
             .cats-grid { gap: 8px; }
             .cat-card .cat-name { font-size: 14px; }
+            .remember-buttons .btn-full { font-size: 10px; padding: 8px 4px; min-width: 60px; }
         }
         
         @media (min-width: 600px) {
@@ -833,6 +872,9 @@
         </div>
     </div>
 
+    <!-- ============================================================
+    نافذة الإعدادات
+    ============================================================ -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-box">
             <h3 data-i18n="settingsTitle">⚙️ الإعدادات</h3>
@@ -853,23 +895,39 @@
         </div>
     </div>
 
+    <!-- ============================================================
+    نافذة تسجيل الدخول
+    ============================================================ -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-box pass-box">
             <div style="font-size:40px;text-align:center;margin-bottom:8px;">🔐</div>
             <h3 data-i18n="loginTitle">دخول المشرف</h3>
             <input type="email" id="emailInput" data-i18n-placeholder="email" placeholder="البريد الإلكتروني" autocomplete="email">
             <input type="password" id="passInput" data-i18n-placeholder="password" placeholder="كلمة المرور" autocomplete="current-password">
-            <button class="btn-full btn-primary" onclick="checkLogin()" data-i18n="loginBtn">🚀 دخول</button>
+            
+            <div class="remember-buttons">
+                <button class="btn-full btn-primary" onclick="checkLogin(86400)">🔒 24 ساعة</button>
+                <button class="btn-full btn-success" onclick="checkLogin(2592000)">🔒 30 يوم</button>
+            </div>
+            
             <button class="btn-full btn-close-modal" onclick="closeLogin()" data-i18n="cancel">إلغاء</button>
             <p class="err" id="errMsg" data-i18n="wrongPass">❌ البريد الإلكتروني أو كلمة المرور غير صحيحة</p>
+            
+            <div class="session-info" id="sessionInfo"></div>
         </div>
     </div>
 
+    <!-- ============================================================
+    لوحة التحكم
+    ============================================================ -->
     <div class="admin-panel" id="adminPanel">
         <div class="admin-wrap" style="max-width:750px;margin:0 auto;">
             <div class="admin-bar">
                 <h3 data-i18n="adminPanelTitle">⚙️ لوحة التحكم</h3>
-                <button onclick="closeAdmin()" data-i18n="close">✖ إغلاق</button>
+                <div class="admin-actions">
+                    <button class="btn-logout" onclick="logout()">🚪 تسجيل الخروج</button>
+                    <button class="btn-close-admin" onclick="closeAdmin()">✖ إغلاق</button>
+                </div>
             </div>
             
             <div class="form-box">
@@ -925,9 +983,9 @@
                 </div>
                 
                 <div class="btn-row">
-                    <button class="btn btn-add" id="btnAdd" onclick="addItem()" data-i18n="addBtn">✅ إضافة</button>
-                    <button class="btn btn-save" id="btnUpdate" style="display:none;" onclick="updateItem()" data-i18n="saveBtn">💾 حفظ</button>
-                    <button class="btn btn-clr" onclick="resetForm()" data-i18n="resetBtn">🔄 جديد</button>
+                    <button class="btn btn-add" id="btnAdd" onclick="addItem()">✅ إضافة</button>
+                    <button class="btn btn-save" id="btnUpdate" style="display:none;" onclick="updateItem()">💾 حفظ</button>
+                    <button class="btn btn-clr" onclick="resetForm()">🔄 جديد</button>
                 </div>
             </div>
             
@@ -990,7 +1048,6 @@
                 loginTitle: 'دخول المشرف',
                 email: 'البريد الإلكتروني',
                 password: 'كلمة المرور',
-                loginBtn: '🚀 دخول',
                 cancel: 'إلغاء',
                 wrongPass: '❌ البريد الإلكتروني أو كلمة المرور غير صحيحة',
                 adminPanelTitle: '⚙️ لوحة التحكم',
@@ -1022,7 +1079,11 @@
                 confirmDel: '⚠️ متأكد من الحذف؟',
                 noItems: 'فارغ',
                 itemsCount: 'صنف',
-                updateError: '❌ فشل التعديل: '
+                updateError: '❌ فشل التعديل: ',
+                sessionExpired: '⏰ انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً',
+                loginSuccess: '✅ تم تسجيل الدخول بنجاح!',
+                logoutSuccess: '👋 تم تسجيل الخروج بنجاح',
+                alreadyLoggedIn: '🔐 أنت مسجل الدخول بالفعل'
             },
             en: {
                 badge: '✦ Premium Quality',
@@ -1043,7 +1104,6 @@
                 loginTitle: 'Admin Login',
                 email: 'Email',
                 password: 'Password',
-                loginBtn: '🚀 Login',
                 cancel: 'Cancel',
                 wrongPass: '❌ Wrong email or password',
                 adminPanelTitle: '⚙️ Admin Panel',
@@ -1075,7 +1135,11 @@
                 confirmDel: '⚠️ Sure to delete?',
                 noItems: 'Empty',
                 itemsCount: 'items',
-                updateError: '❌ Update failed: '
+                updateError: '❌ Update failed: ',
+                sessionExpired: '⏰ Session expired, please login again',
+                loginSuccess: '✅ Login successful!',
+                logoutSuccess: '👋 Logged out successfully',
+                alreadyLoggedIn: '🔐 You are already logged in'
             },
             ku: {
                 badge: '✦ Premium Quality',
@@ -1096,7 +1160,6 @@
                 loginTitle: 'چوونەژوورەوە',
                 email: 'ئیمەیڵ',
                 password: 'وشەی نهێنی',
-                loginBtn: '🚀 چوونەژوور',
                 cancel: 'پاشگەزبوونەوە',
                 wrongPass: '❌ ئیمەیڵ یان وشەی نهێنی هەڵەیە',
                 adminPanelTitle: '⚙️ پانێڵی بەڕێوەبردن',
@@ -1128,7 +1191,11 @@
                 confirmDel: '⚠️ دڵنیایت دەتەوێت بیسڕیتەوە؟',
                 noItems: 'بەتاڵ',
                 itemsCount: 'خواردن',
-                updateError: '❌ نوێکردنەوە شکستی هێنا: '
+                updateError: '❌ نوێکردنەوە شکستی هێنا: ',
+                sessionExpired: '⏰ ماوەی جلسە تەواو بوو، تکایە دووبارە بچۆ ژوورەوە',
+                loginSuccess: '✅ چوونەژوورەوە سەرکەوتوو بوو!',
+                logoutSuccess: '👋 دەرچوون سەرکەوتوو بوو',
+                alreadyLoggedIn: '🔐 تۆ پێشتر چوویتە ژوورەوە'
             }
         };
 
@@ -1141,12 +1208,89 @@
         let currentLang = localStorage.getItem('lang') || 'ar';
         let isDark = localStorage.getItem('dark') !== 'false';
         let selectedCategory = null;
+        let isLoggedIn = false;
+        let loginExpiry = null;
 
         // ============================================================
         // دالة الترجمة
         // ============================================================
         function t(key) {
             return translations[currentLang]?.[key] || translations.ar[key] || key;
+        }
+
+        // ============================================================
+        // إدارة الجلسة
+        // ============================================================
+        function checkSession() {
+            const saved = localStorage.getItem('adminSession');
+            if (!saved) {
+                console.log('❌ لا توجد جلسة محفوظة');
+                return false;
+            }
+            
+            try {
+                const session = JSON.parse(saved);
+                const now = Date.now();
+                
+                if (now > session.expiry) {
+                    console.log('⏰ الجلسة منتهية');
+                    localStorage.removeItem('adminSession');
+                    isLoggedIn = false;
+                    loginExpiry = null;
+                    return false;
+                }
+                
+                console.log('✅ الجلسة سارية حتى:', new Date(session.expiry).toLocaleString());
+                isLoggedIn = true;
+                loginExpiry = session.expiry;
+                return true;
+            } catch (e) {
+                console.error('❌ خطأ في قراءة الجلسة:', e);
+                return false;
+            }
+        }
+
+        function saveSession(durationSeconds) {
+            const session = {
+                email: ADMIN_EMAIL,
+                loginTime: Date.now(),
+                expiry: Date.now() + (durationSeconds * 1000)
+            };
+            localStorage.setItem('adminSession', JSON.stringify(session));
+            isLoggedIn = true;
+            loginExpiry = session.expiry;
+            updateSessionInfo();
+            console.log('✅ تم حفظ الجلسة حتى:', new Date(session.expiry).toLocaleString());
+        }
+
+        function logout() {
+            localStorage.removeItem('adminSession');
+            isLoggedIn = false;
+            loginExpiry = null;
+            closeAdmin();
+            toast(t('logoutSuccess'));
+            updateSessionInfo();
+            console.log('👋 تم تسجيل الخروج');
+        }
+
+        function updateSessionInfo() {
+            const info = document.getElementById('sessionInfo');
+            if (isLoggedIn && loginExpiry) {
+                const remaining = Math.floor((loginExpiry - Date.now()) / 1000);
+                if (remaining > 0) {
+                    const hours = Math.floor(remaining / 3600);
+                    const minutes = Math.floor((remaining % 3600) / 60);
+                    const seconds = remaining % 60;
+                    info.textContent = `🔐 جلسة نشطة - متبقية: ${hours}h ${minutes}m ${seconds}s`;
+                    info.style.color = 'var(--accent)';
+                } else {
+                    info.textContent = '⏰ الجلسة منتهية';
+                    info.style.color = 'var(--text2)';
+                }
+            } else {
+                info.textContent = '🔓 غير مسجل الدخول';
+                info.style.color = 'var(--text2)';
+            }
         }
 
         // ============================================================
@@ -1170,6 +1314,7 @@
             
             document.getElementById('langSelect').value = currentLang;
             updatePageTitle();
+            updateSessionInfo();
             
             if (!isLoading) {
                 if (selectedCategory === null) {
@@ -1238,7 +1383,6 @@
             if (category === allText) {
                 goBackToCategories();
             } else {
-                // البحث عن التصنيف الأصلي
                 let originalCat = category;
                 const categoryMap = {};
                 items.forEach(item => {
@@ -1585,6 +1729,7 @@
         function openSettings() {
             document.getElementById('settingsModal').classList.add('show');
             document.getElementById('langSelect').value = currentLang;
+            updateSessionInfo();
         }
         function closeSettings() {
             document.getElementById('settingsModal').classList.remove('show');
@@ -1604,36 +1749,56 @@
         }
 
         // ============================================================
-        // دالات تسجيل الدخول
+        // ✅ دالات تسجيل الدخول - بدون فتح تلقائي
         // ============================================================
         function openAdminLogin() {
+            // التحقق من الجلسة أولاً
+            if (checkSession()) {
+                // إذا كانت الجلسة سارية، نفتح لوحة التحكم مباشرة
+                closeSettings();
+                document.getElementById('adminPanel').classList.add('show');
+                document.body.style.overflow = 'hidden';
+                if (items.length > 0) {
+                    showAdminList();
+                }
+                applyLanguage();
+                toast(t('alreadyLoggedIn'));
+                return;
+            }
+            
+            // إذا لم تكن هناك جلسة، نفتح نافذة تسجيل الدخول
             closeSettings();
             document.getElementById('loginModal').classList.add('show');
             document.getElementById('errMsg').style.display = 'none';
             document.getElementById('emailInput').value = '';
             document.getElementById('passInput').value = '';
+            updateSessionInfo();
             applyLanguage();
         }
+        
         function closeLogin() {
             document.getElementById('loginModal').classList.remove('show');
         }
 
-        function checkLogin() {
+        function checkLogin(durationSeconds) {
             const email = document.getElementById('emailInput').value.trim();
             const pass = document.getElementById('passInput').value;
+            
             if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
+                saveSession(durationSeconds);
                 closeLogin();
                 document.getElementById('adminPanel').classList.add('show');
                 document.body.style.overflow = 'hidden';
                 showAdminList();
                 applyLanguage();
+                toast(t('loginSuccess'));
             } else {
                 document.getElementById('errMsg').style.display = 'block';
             }
         }
 
         document.getElementById('passInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') checkLogin();
+            if (e.key === 'Enter') checkLogin(86400);
         });
         document.getElementById('emailInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') document.getElementById('passInput').focus();
@@ -1646,7 +1811,6 @@
             document.getElementById('adminPanel').classList.remove('show');
             document.body.style.overflow = '';
             resetForm();
-            loadData();
         }
 
         function showAdminList() {
@@ -1794,9 +1958,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // ============================================================
-        // ✅ دالة التعديل المُصلحة (مع رسائل خطأ واضحة)
-        // ============================================================
         async function updateItem() {
             const fid = document.getElementById('editId').value;
             if (!fid) {
@@ -1812,7 +1973,6 @@
             }
             
             let img = document.getElementById('previewImg').src;
-            // إذا كانت الصورة هي placeholder، نستخدم الصورة القديمة
             if (img && img.includes('placehold.co')) {
                 const oldItem = items.find(i => i.fid === fid);
                 if (oldItem && oldItem.image && oldItem.image.startsWith('http')) {
@@ -1820,7 +1980,6 @@
                 }
             }
             
-            // إذا كان هناك ملف جديد
             if (file) {
                 try {
                     document.getElementById('btnUpdate').textContent = '⏳ رفع الصورة...';
@@ -1837,7 +1996,6 @@
                 document.getElementById('btnUpdate').textContent = '⏳ جاري الحفظ...';
                 document.getElementById('btnUpdate').disabled = true;
                 
-                // ✅ التحقق من وجود المستند قبل التحديث
                 const docRef = db.doc(fid);
                 const docSnap = await docRef.get();
                 
@@ -1847,7 +2005,6 @@
                     return;
                 }
                 
-                // ✅ تحديث المستند
                 await docRef.update({
                     name: name,
                     category: document.getElementById('itemCat').value,
@@ -1857,7 +2014,6 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // ✅ تحديث الواجهة
                 resetForm();
                 await loadData();
                 toast(t('toastUpdated'));
@@ -1921,13 +2077,23 @@
         }
 
         // ============================================================
-        // بدء التطبيق
+        // ✅ بدء التطبيق - بدون فتح تلقائي للوحة التحكم
         // ============================================================
         document.body.classList.toggle('light-mode', !isDark);
         document.getElementById('darkToggle').classList.toggle('on', isDark);
 
         applyLanguage();
         loadData();
+
+        // ✅ فقط نتحقق من الجلسة ونحدث المعلومات، لكن لا نفتح لوحة التحكم تلقائياً
+        setTimeout(() => {
+            checkSession();
+            updateSessionInfo();
+            console.log('✅ الجلسة: ' + (isLoggedIn ? 'نشطة' : 'غير نشطة'));
+        }, 1000);
+
+        // تحديث معلومات الجلسة كل 10 ثواني
+        setInterval(updateSessionInfo, 10000);
 
         document.getElementById('settingsModal').addEventListener('click', function(e) {
             if (e.target === this) closeSettings();
