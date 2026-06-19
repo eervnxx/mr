@@ -13,7 +13,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
     <style>
-        /* جميع الأنماط كما هي - تم حذفها للاختصار، لكنها موجودة في الكود الكامل أدناه */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         :root {
@@ -1222,7 +1221,7 @@
         }
 
         // ============================================================
-        // ✅ تحميل البيانات (مرة واحدة فقط عند فتح الصفحة)
+        // ✅ تحميل البيانات (مرة واحدة فقط عند فتح الصفحة - بدون onSnapshot)
         // ============================================================
         async function loadData() {
             renderCategorySkeletons();
@@ -1239,7 +1238,7 @@
                 return;
             }
 
-            // 2. جلب من Firebase (أول مرة فقط)
+            // 2. جلب من Firebase باستخدام get() (مرة واحدة فقط - بدون onSnapshot)
             try {
                 console.log('📡 جلب البيانات من Firebase...');
                 const snapshot = await db.orderBy('createdAt', 'desc').get();
@@ -1576,7 +1575,7 @@
         }
 
         // ============================================================
-        // عرض أطباق تصنيف معين (فوري من الذاكرة)
+        // عرض أطباق تصنيف معين (فوري من الذاكرة - بدون طلب Firebase)
         // ============================================================
         function renderItemsForCategory(category) {
             const container = document.getElementById('categoriesContainer');
@@ -1588,7 +1587,7 @@
             updatePageTitle();
             updateCatsBar();
             
-            // استخدام items من الذاكرة (لا نطلب من Firebase)
+            // ✅ استخدام items من الذاكرة (لا نطلب من Firebase نهائياً)
             const filtered = items.filter(item => (item.category || 'بدون') === category);
             
             const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -1906,7 +1905,7 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 resetForm();
-                await refreshCacheAfterChange(); // ✅ تحديث التخزين المؤقت
+                await refreshCacheAfterChange();
                 toast(t('toastAdded'));
             } catch (error) {
                 console.error('خطأ في الإضافة:', error);
@@ -2002,7 +2001,7 @@
                 });
                 
                 resetForm();
-                await refreshCacheAfterChange(); // ✅ تحديث التخزين المؤقت
+                await refreshCacheAfterChange();
                 toast(t('toastUpdated'));
                 
             } catch (error) {
@@ -2021,7 +2020,7 @@
             if (!confirm(t('confirmDel'))) return;
             try {
                 await db.doc(fid).delete();
-                await refreshCacheAfterChange(); // ✅ تحديث التخزين المؤقت
+                await refreshCacheAfterChange();
                 toast(t('toastDeleted'));
             } catch (error) {
                 console.error('❌ خطأ في الحذف:', error);
