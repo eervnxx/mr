@@ -871,16 +871,42 @@
             max-width: 420px;
         }
         
-        .session-info {
-            font-size: 11px;
-            color: var(--text2);
+        /* ============================================================
+           Toast (إشعارات منبثقة)
+           ============================================================ */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            padding: 12px 24px;
+            border-radius: 50px;
+            z-index: 2000;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            pointer-events: none;
+            color: var(--text);
+            font-family: var(--font-ar);
+            max-width: 90%;
             text-align: center;
-            padding: 4px 0;
-            margin-top: 4px;
-            border-top: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .toast.on {
+            transform: translateX(-50%) translateY(0);
         }
         
         @media (max-width: 480px) {
+            .toast {
+                font-size: 12px;
+                padding: 10px 18px;
+                white-space: normal;
+                max-width: 95%;
+            }
             .admin-cats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
             .admin-items-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
             .admin-cat-card .cat-img { height: 90px; }
@@ -998,8 +1024,6 @@
             
             <button class="btn-full btn-close-modal" onclick="closeLogin()" data-i18n="cancel">إلغاء</button>
             <p class="err" id="errMsg" data-i18n="wrongPass">❌ البريد الإلكتروني أو كلمة المرور غير صحيحة</p>
-            
-            <div class="session-info" id="sessionInfo"></div>
         </div>
     </div>
 
@@ -1164,6 +1188,9 @@
         </div>
     </div>
 
+    <!-- ============================================================
+    Toast (إشعارات منبثقة)
+    ============================================================ -->
     <div class="toast" id="toast"></div>
 
     <script>
@@ -1382,13 +1409,24 @@
         let isLoggedIn = false;
         let loginExpiry = null;
         let isDataLoaded = false;
-        let adminSelectedCategory = null; // للتحكم في لوحة التحكم
+        let adminSelectedCategory = null;
 
         // ============================================================
         // دالة الترجمة
         // ============================================================
         function t(key) {
             return translations[currentLang]?.[key] || translations.ar[key] || key;
+        }
+
+        // ============================================================
+        // Toast (إشعارات منبثقة)
+        // ============================================================
+        function toast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('on');
+            clearTimeout(el._timer);
+            el._timer = setTimeout(() => el.classList.remove('on'), 3000);
         }
 
         // ============================================================
@@ -1476,6 +1514,7 @@
                         <button onclick="loadData()" style="margin-top:12px;padding:10px 28px;border-radius:50px;background:var(--primary);color:white;border:none;font-family:inherit;font-size:14px;cursor:pointer;">🔄 ${currentLang === 'en' ? 'Retry' : currentLang === 'ku' ? 'هەوڵبدەرەوە' : 'إعادة المحاولة'}</button>
                     </div>
                 `;
+                toast(t('toastError'));
             }
         }
 
@@ -1564,14 +1603,12 @@
                         email: firebaseSession.email,
                         expiry: firebaseSession.expiry
                     }));
-                    updateSessionInfo();
                     return true;
                 } else {
                     await clearSessionFromFirebase();
                     localStorage.removeItem('adminSession');
                     isLoggedIn = false;
                     loginExpiry = null;
-                    updateSessionInfo();
                     return false;
                 }
             }
@@ -1584,14 +1621,12 @@
                         isLoggedIn = true;
                         loginExpiry = session.expiry;
                         await saveSessionToFirebase(session.email, session.expiry);
-                        updateSessionInfo();
                         return true;
                     } else {
                         localStorage.removeItem('adminSession');
                         await clearSessionFromFirebase();
                         isLoggedIn = false;
                         loginExpiry = null;
-                        updateSessionInfo();
                         return false;
                     }
                 } catch (e) {
@@ -1601,7 +1636,6 @@
 
             isLoggedIn = false;
             loginExpiry = null;
-            updateSessionInfo();
             return false;
         }
 
@@ -1617,7 +1651,6 @@
             
             isLoggedIn = true;
             loginExpiry = expiry;
-            updateSessionInfo();
             console.log('✅ تم حفظ الجلسة حتى:', new Date(expiry).toLocaleString());
         }
 
@@ -1628,28 +1661,7 @@
             loginExpiry = null;
             closeAdmin();
             toast(t('logoutSuccess'));
-            updateSessionInfo();
             console.log('👋 تم تسجيل الخروج');
-        }
-
-        function updateSessionInfo() {
-            const info = document.getElementById('sessionInfo');
-            if (isLoggedIn && loginExpiry) {
-                const remaining = Math.floor((loginExpiry - Date.now()) / 1000);
-                if (remaining > 0) {
-                    const hours = Math.floor(remaining / 3600);
-                    const minutes = Math.floor((remaining % 3600) / 60);
-                    const seconds = remaining % 60;
-                    info.textContent = `🔐 جلسة نشطة - متبقية: ${hours}h ${minutes}m ${seconds}s`;
-                    info.style.color = 'var(--accent)';
-                } else {
-                    info.textContent = '⏰ الجلسة منتهية';
-                    info.style.color = 'var(--text2)';
-                }
-            } else {
-                info.textContent = '🔓 غير مسجل الدخول';
-                info.style.color = 'var(--text2)';
-            }
         }
 
         // ============================================================
@@ -1673,7 +1685,6 @@
             
             document.getElementById('langSelect').value = currentLang;
             updatePageTitle();
-            updateSessionInfo();
             
             if (!isLoading && isDataLoaded) {
                 if (selectedCategory === null) {
@@ -2013,7 +2024,6 @@
         function openSettings() {
             document.getElementById('settingsModal').classList.add('show');
             document.getElementById('langSelect').value = currentLang;
-            updateSessionInfo();
         }
         function closeSettings() {
             document.getElementById('settingsModal').classList.remove('show');
@@ -2052,7 +2062,6 @@
             document.getElementById('errMsg').style.display = 'none';
             document.getElementById('emailInput').value = '';
             document.getElementById('passInput').value = '';
-            updateSessionInfo();
             applyLanguage();
         }
         
@@ -2512,17 +2521,6 @@
         }
 
         // ============================================================
-        // Toast
-        // ============================================================
-        function toast(msg) {
-            const el = document.getElementById('toast');
-            el.textContent = msg;
-            el.classList.add('on');
-            clearTimeout(el._timer);
-            el._timer = setTimeout(() => el.classList.remove('on'), 3000);
-        }
-
-        // ============================================================
         // ✅ بدء التطبيق
         // ============================================================
         document.body.classList.toggle('light-mode', !isDark);
@@ -2533,10 +2531,7 @@
 
         setTimeout(async () => {
             await checkSession();
-            updateSessionInfo();
         }, 1000);
-
-        setInterval(updateSessionInfo, 10000);
 
         document.getElementById('settingsModal').addEventListener('click', function(e) {
             if (e.target === this) closeSettings();
