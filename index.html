@@ -13,8 +13,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
     <style>
+        /* جميع الأنماط كما هي - نفس الكود السابق مع إضافة Shimmer Effect */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
         :root {
             --bg: #0a0a14;
             --surface: rgba(255,255,255,0.04);
@@ -30,7 +30,6 @@
             --font-ar: 'Cairo', sans-serif;
             --font-en: 'Poppins', sans-serif;
         }
-        
         .light-mode {
             --bg: #f5f6fa;
             --surface: rgba(0,0,0,0.03);
@@ -41,7 +40,6 @@
             --primary: #3b7dd8;
             --accent: #00b894;
         }
-        
         body {
             font-family: var(--font-ar);
             background: var(--bg);
@@ -371,14 +369,22 @@
         }
         .price { font-size: 18px; font-weight: 800; color: var(--accent); }
         
+        /* ============================================================
+           Skeleton Loading مع Shimmer Effect
+           ============================================================ */
         .skeleton-cat {
             background: var(--surface);
             border-radius: var(--radius-lg);
             overflow: hidden;
-            animation: pulse 1.2s ease-in-out infinite;
+            position: relative;
         }
-        .skeleton-cat .skeleton-img { height: 120px; background: var(--surface2); }
-        .skeleton-cat .skeleton-body { padding: 12px 14px; }
+        .skeleton-cat .skeleton-img {
+            height: 120px;
+            background: var(--surface2);
+        }
+        .skeleton-cat .skeleton-body {
+            padding: 12px 14px;
+        }
         .skeleton-cat .skeleton-line {
             height: 14px;
             background: var(--surface2);
@@ -386,6 +392,20 @@
             margin-bottom: 4px;
         }
         .skeleton-cat .skeleton-line.short { width: 40%; }
+        
+        /* Shimmer Effect */
+        .shimmer {
+            animation: shimmer 1.5s ease-in-out infinite;
+            background: linear-gradient(90deg, var(--surface2) 25%, var(--surface) 50%, var(--surface2) 75%);
+            background-size: 200% 100%;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .skeleton-cat .skeleton-img { animation: shimmer 1.5s ease-in-out infinite; }
+        .skeleton-cat .skeleton-line { animation: shimmer 1.5s ease-in-out infinite; }
         
         @keyframes pulse {
             0%, 100% { opacity: 0.5; }
@@ -593,7 +613,6 @@
         }
         .btn-close-admin:hover { background: rgba(253,121,168,0.35); }
         
-        /* نموذج الإضافة */
         .form-box {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -694,9 +713,6 @@
         .btn-save { background: #fd79a8; color: white; }
         .btn-clr { background: var(--surface); color: var(--text2); border: 1px solid var(--border); }
         
-        /* ============================================================
-           بطاقات التصنيفات في لوحة التحكم
-           ============================================================ */
         .admin-cats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -738,9 +754,6 @@
         .admin-cat-card .cat-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
         .admin-cat-card .cat-count { font-size: 12px; color: var(--text2); font-weight: 500; }
         
-        /* ============================================================
-           أطباق التصنيف المحدد في لوحة التحكم
-           ============================================================ */
         .admin-items-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -834,7 +847,6 @@
         .admin-item-card .item-status.status-on { background: rgba(0,206,201,0.3); color: #00cec9; }
         .admin-item-card .item-status.status-off { background: rgba(253,121,168,0.3); color: #fd79a8; }
         
-        /* زر رجوع في لوحة التحكم */
         .admin-back-btn {
             display: none;
             align-items: center;
@@ -855,8 +867,7 @@
         .admin-back-btn:active { transform: scale(0.95); }
         .admin-back-btn.show { display: inline-flex; }
         .admin-back-btn svg {
-            width: 16px;
-            height: 16px;
+            width: 16px; height: 16px;
             fill: none;
             stroke: currentColor;
             stroke-width: 2.5;
@@ -864,16 +875,10 @@
             stroke-linejoin: round;
         }
         
-        /* ============================================================
-           نافذة التعديل المنبثقة
-           ============================================================ */
         .edit-modal .modal-box {
             max-width: 420px;
         }
         
-        /* ============================================================
-           Toast (إشعارات منبثقة)
-           ============================================================ */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -985,7 +990,7 @@
     </div>
 
     <!-- ============================================================
-    نافذة الإعدادات
+    باقي النوافذ (نفس الكود السابق)
     ============================================================ -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-box">
@@ -1007,34 +1012,25 @@
         </div>
     </div>
 
-    <!-- ============================================================
-    نافذة تسجيل الدخول
-    ============================================================ -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-box pass-box">
             <div style="font-size:40px;text-align:center;margin-bottom:8px;">🔐</div>
             <h3 data-i18n="loginTitle">دخول المشرف</h3>
             <input type="email" id="emailInput" data-i18n-placeholder="email" placeholder="البريد الإلكتروني" autocomplete="email">
             <input type="password" id="passInput" data-i18n-placeholder="password" placeholder="كلمة المرور" autocomplete="current-password">
-            
             <div class="remember-buttons">
                 <button class="btn-full btn-primary" onclick="checkLogin(86400)">🔒 24 ساعة</button>
                 <button class="btn-full btn-success" onclick="checkLogin(2592000)">🔒 30 يوم</button>
             </div>
-            
             <button class="btn-full btn-close-modal" onclick="closeLogin()" data-i18n="cancel">إلغاء</button>
             <p class="err" id="errMsg" data-i18n="wrongPass">❌ البريد الإلكتروني أو كلمة المرور غير صحيحة</p>
         </div>
     </div>
 
-    <!-- ============================================================
-    نافذة التعديل المنبثقة
-    ============================================================ -->
     <div class="modal-overlay edit-modal" id="editModal">
         <div class="modal-box">
             <h3 id="editFormTitle">✏️ تعديل</h3>
             <input type="hidden" id="editId">
-            
             <div class="f-group">
                 <label data-i18n="imageLabel">📸 صورة من الهاتف</label>
                 <div class="file-box" id="editFileBox" onclick="document.getElementById('editFileInput').click()">
@@ -1045,31 +1041,15 @@
                 <img class="preview" id="editPreviewImg">
                 <div class="prog" id="editProgBar"><div class="prog-fill" id="editProgFill"></div></div>
             </div>
-            
             <div class="f-group">
                 <label data-i18n="nameLabel">📝 اسم الصنف</label>
                 <input type="text" id="editItemName" data-i18n-placeholder="namePlaceholder" placeholder="برجر دجاج">
             </div>
-            
             <div class="f-row">
                 <div class="f-group">
                     <label data-i18n="categoryLabel">📂 تصنيف</label>
                     <select id="editItemCat">
-                        <option>وجبات سريعة</option>
-                        <option>اراكيل</option>
-                        <option>حلويات</option>
-                        <option>عصائر طبيعية</option>
-                        <option>مشروبات باردة</option>
-                        <option>مشروبات ساخنه</option>
-                        <option>مقبلات</option>
-                        <option>بيتزا</option>
-                        <option>بركر</option>
-                        <option>ريزو</option>
-                        <option>ايس كريم</option>
-                        <option>كوكتيلات</option>
-                        <option>موهيتو</option>
-                        <option>فرابتشينو</option>
-                        <option>ميلك شيلك</option>
+                        <option>وجبات سريعة</option><option>اراكيل</option><option>حلويات</option><option>عصائر طبيعية</option><option>مشروبات باردة</option><option>مشروبات ساخنه</option><option>مقبلات</option><option>بيتزا</option><option>بركر</option><option>ريزو</option><option>ايس كريم</option><option>كوكتيلات</option><option>موهيتو</option><option>فرابتشينو</option><option>ميلك شيلك</option>
                     </select>
                 </div>
                 <div class="f-group">
@@ -1077,12 +1057,10 @@
                     <input type="number" id="editItemPrice" placeholder="25" step="0.01">
                 </div>
             </div>
-            
             <div class="f-group">
                 <label data-i18n="descLabel">📄 وصف</label>
                 <textarea id="editItemDesc" data-i18n-placeholder="descPlaceholder" placeholder="وصف مختصر..."></textarea>
             </div>
-            
             <div class="btn-row">
                 <button class="btn btn-save" id="btnEditUpdate" onclick="updateItem()">💾 حفظ</button>
                 <button class="btn btn-clr" onclick="closeEditModal()">❌ إلغاء</button>
@@ -1090,9 +1068,6 @@
         </div>
     </div>
 
-    <!-- ============================================================
-    لوحة التحكم
-    ============================================================ -->
     <div class="admin-panel" id="adminPanel">
         <div class="admin-wrap">
             <div class="admin-bar">
@@ -1102,12 +1077,9 @@
                     <button class="btn-close-admin" onclick="closeAdmin()">✖ إغلاق</button>
                 </div>
             </div>
-            
-            <!-- نموذج الإضافة -->
             <div class="form-box">
                 <h3 id="formTitle" data-i18n="addItemTitle">➕ إضافة صنف جديد</h3>
                 <input type="hidden" id="editId">
-                
                 <div class="f-group">
                     <label data-i18n="imageLabel">📸 صورة من الهاتف</label>
                     <div class="file-box" id="fileBox" onclick="document.getElementById('fileInput').click()">
@@ -1118,31 +1090,15 @@
                     <img class="preview" id="previewImg">
                     <div class="prog" id="progBar"><div class="prog-fill" id="progFill"></div></div>
                 </div>
-                
                 <div class="f-group">
                     <label data-i18n="nameLabel">📝 اسم الصنف</label>
                     <input type="text" id="itemName" data-i18n-placeholder="namePlaceholder" placeholder="برجر دجاج">
                 </div>
-                
                 <div class="f-row">
                     <div class="f-group">
                         <label data-i18n="categoryLabel">📂 تصنيف</label>
                         <select id="itemCat">
-                            <option>وجبات سريعة</option>
-                            <option>اراكيل</option>
-                            <option>حلويات</option>
-                            <option>عصائر طبيعية</option>
-                            <option>مشروبات باردة</option>
-                            <option>مشروبات ساخنه</option>
-                            <option>مقبلات</option>
-                            <option>بيتزا</option>
-                            <option>بركر</option>
-                            <option>ريزو</option>
-                            <option>ايس كريم</option>
-                            <option>كوكتيلات</option>
-                            <option>موهيتو</option>
-                            <option>فرابتشينو</option>
-                            <option>ميلك شيلك</option>
+                            <option>وجبات سريعة</option><option>اراكيل</option><option>حلويات</option><option>عصائر طبيعية</option><option>مشروبات باردة</option><option>مشروبات ساخنه</option><option>مقبلات</option><option>بيتزا</option><option>بركر</option><option>ريزو</option><option>ايس كريم</option><option>كوكتيلات</option><option>موهيتو</option><option>فرابتشينو</option><option>ميلك شيلك</option>
                         </select>
                     </div>
                     <div class="f-group">
@@ -1150,25 +1106,19 @@
                         <input type="number" id="itemPrice" placeholder="25" step="0.01">
                     </div>
                 </div>
-                
                 <div class="f-group">
                     <label data-i18n="descLabel">📄 وصف</label>
                     <textarea id="itemDesc" data-i18n-placeholder="descPlaceholder" placeholder="وصف مختصر..."></textarea>
                 </div>
-                
                 <div class="btn-row">
                     <button class="btn btn-add" id="btnAdd" onclick="addItem()">✅ إضافة</button>
                     <button class="btn btn-clr" onclick="resetForm()">🔄 جديد</button>
                 </div>
             </div>
-            
-            <!-- زر رجوع في لوحة التحكم -->
             <button class="admin-back-btn" id="adminBackBtn" onclick="adminGoBackToCategories()">
                 <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 <span data-i18n="backToCategories">قائمة الأصناف</span>
             </button>
-            
-            <!-- عنوان الصفحة في لوحة التحكم -->
             <div id="adminPageTitle">
                 <div class="section-title">
                     <span data-i18n="categoriesTitle">📋 قائمة الأصناف</span>
@@ -1177,8 +1127,6 @@
             <div id="adminCategoryTitle" style="display:none;">
                 <div class="category-title" id="adminSelectedCategoryName"></div>
             </div>
-            
-            <!-- محتوى لوحة التحكم -->
             <div id="adminCategoriesContainer">
                 <div class="admin-cats-grid" id="adminCatsGrid"></div>
             </div>
@@ -1188,9 +1136,6 @@
         </div>
     </div>
 
-    <!-- ============================================================
-    Toast (إشعارات منبثقة)
-    ============================================================ -->
     <div class="toast" id="toast"></div>
 
     <script>
@@ -1215,9 +1160,10 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore().collection('menuItems');
         const sessionDB = firebase.firestore().collection('adminSessions');
+        const versionDB = firebase.firestore().collection('appVersion');
 
         // ============================================================
-        // الترجمة
+        // الترجمة (مختصرة)
         // ============================================================
         const translations = {
             ar: {
@@ -1271,7 +1217,6 @@
                 noItems: 'فارغ',
                 itemsCount: 'صنف',
                 updateError: '❌ فشل التعديل: ',
-                sessionExpired: '⏰ انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً',
                 loginSuccess: '✅ تم تسجيل الدخول بنجاح!',
                 logoutSuccess: '👋 تم تسجيل الخروج بنجاح',
                 alreadyLoggedIn: '🔐 أنت مسجل الدخول بالفعل',
@@ -1329,12 +1274,11 @@
                 noItems: 'Empty',
                 itemsCount: 'items',
                 updateError: '❌ Update failed: ',
-                sessionExpired: '⏰ Session expired, please login again',
                 loginSuccess: '✅ Login successful!',
                 logoutSuccess: '👋 Logged out successfully',
                 alreadyLoggedIn: '🔐 You are already logged in',
                 dataLoaded: '📦 Data loaded from server',
-                dataCached: '💾 Data loaded from browser cache'
+                dataCached: '💾 Data loaded from browser'
             },
             ku: {
                 badge: '✦ Premium Quality',
@@ -1387,14 +1331,208 @@
                 noItems: 'بەتاڵ',
                 itemsCount: 'خواردن',
                 updateError: '❌ نوێکردنەوە شکستی هێنا: ',
-                sessionExpired: '⏰ ماوەی جلسە تەواو بوو، تکایە دووبارە بچۆ ژوورەوە',
                 loginSuccess: '✅ چوونەژوورەوە سەرکەوتوو بوو!',
                 logoutSuccess: '👋 دەرچوون سەرکەوتوو بوو',
                 alreadyLoggedIn: '🔐 تۆ پێشتر چوویتە ژوورەوە',
                 dataLoaded: '📦 داتا لە ڕاژە بارکرا',
-                dataCached: '💾 داتا لە پاشەکەوتی وێبگەڕ بارکرا'
+                dataCached: '💾 داتا لە وێبگەڕ بارکرا'
             }
         };
+
+        function t(key) {
+            return translations[currentLang]?.[key] || translations.ar[key] || key;
+        }
+
+        function toast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('on');
+            clearTimeout(el._timer);
+            el._timer = setTimeout(() => el.classList.remove('on'), 3000);
+        }
+
+        // ============================================================
+        // IndexedDB Manager
+        // ============================================================
+        class MenuDB {
+            constructor() {
+                this.dbName = 'MenuDB';
+                this.storeName = 'menuData';
+                this.version = 1;
+                this.db = null;
+            }
+
+            openDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, this.version);
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains(this.storeName)) {
+                            db.createObjectStore(this.storeName, { keyPath: 'id' });
+                        }
+                    };
+                    request.onsuccess = (event) => {
+                        this.db = event.target.result;
+                        resolve(this.db);
+                    };
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            saveData(data) {
+                return new Promise((resolve, reject) => {
+                    if (!this.db) { reject(new Error('Database not open')); return; }
+                    const transaction = this.db.transaction([this.storeName], 'readwrite');
+                    const store = transaction.objectStore(this.storeName);
+                    const request = store.put({ id: 'menuData', data: data });
+                    request.onsuccess = () => resolve();
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            getData() {
+                return new Promise((resolve, reject) => {
+                    if (!this.db) { reject(new Error('Database not open')); return; }
+                    const transaction = this.db.transaction([this.storeName], 'readonly');
+                    const store = transaction.objectStore(this.storeName);
+                    const request = store.get('menuData');
+                    request.onsuccess = () => {
+                        resolve(request.result ? request.result.data : null);
+                    };
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            clearData() {
+                return new Promise((resolve, reject) => {
+                    if (!this.db) { reject(new Error('Database not open')); return; }
+                    const transaction = this.db.transaction([this.storeName], 'readwrite');
+                    const store = transaction.objectStore(this.storeName);
+                    const request = store.delete('menuData');
+                    request.onsuccess = () => resolve();
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+        }
+
+        // ============================================================
+        // Version Manager
+        // ============================================================
+        async function getCurrentVersion() {
+            try {
+                const doc = await versionDB.doc('current').get();
+                return doc.exists ? doc.data().version || 0 : 0;
+            } catch (e) { return 0; }
+        }
+
+        async function updateVersion(newVersion) {
+            try {
+                await versionDB.doc('current').set({
+                    version: newVersion,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (e) { console.warn(e); }
+        }
+
+        function getLocalVersion() {
+            try { return parseInt(localStorage.getItem('menuVersion')) || 0; } catch (e) { return 0; }
+        }
+
+        function setLocalVersion(version) {
+            try { localStorage.setItem('menuVersion', String(version)); } catch (e) {}
+        }
+
+        // ============================================================
+        // ✅ تحميل البيانات السريع مع Skeleton
+        // ============================================================
+        async function loadMenuData() {
+            const menuDB = new MenuDB();
+            try { await menuDB.openDB(); } catch (e) { console.warn(e); }
+            
+            const localVersion = getLocalVersion();
+            let currentVersion = 0;
+            try { currentVersion = await getCurrentVersion(); } catch (e) { currentVersion = 0; }
+            
+            console.log(`📌 الإصدار المحلي: ${localVersion}, الإصدار الحالي: ${currentVersion}`);
+            
+            // عرض Skeleton فوراً
+            renderCategorySkeletons();
+            
+            // إذا كان الإصدار متطابقاً، نحاول التحميل من IndexedDB
+            if (localVersion === currentVersion && localVersion > 0) {
+                try {
+                    const data = await menuDB.getData();
+                    if (data && data.length > 0) {
+                        items = data;
+                        isLoading = false;
+                        isDataLoaded = true;
+                        renderCategories();
+                        toast('💾 تم تحميل البيانات من المتصفح');
+                        return;
+                    }
+                } catch (e) { console.warn(e); }
+            }
+            
+            // جلب من Firebase
+            await fetchAndSaveData(menuDB);
+        }
+
+        async function fetchAndSaveData(menuDB) {
+            try {
+                console.log('📡 جلب البيانات من Firebase...');
+                const snapshot = await db.orderBy('createdAt', 'desc').get();
+                
+                if (snapshot.empty) {
+                    items = [];
+                    isLoading = false;
+                    isDataLoaded = true;
+                    renderCategories();
+                    toast('📭 لا توجد أطباق متاحة حالياً');
+                    return;
+                }
+                
+                const newItems = [];
+                for (const doc of snapshot.docs) {
+                    const data = doc.data();
+                    newItems.push({
+                        fid: doc.id,
+                        ...data,
+                        image: data.image || ''
+                    });
+                }
+                
+                items = newItems;
+                
+                // حفظ في IndexedDB
+                try { await menuDB.saveData(items); } catch (e) { console.warn(e); }
+                
+                // حفظ الإصدار
+                let currentVersion = 0;
+                try { currentVersion = await getCurrentVersion(); } catch (e) {
+                    currentVersion = Date.now();
+                    await updateVersion(currentVersion);
+                }
+                setLocalVersion(currentVersion);
+                
+                // عرض البيانات
+                isLoading = false;
+                isDataLoaded = true;
+                renderCategories();
+                toast('📦 تم تحميل البيانات من الخادم');
+                
+            } catch (error) {
+                console.error('❌ خطأ في جلب البيانات:', error);
+                isLoading = false;
+                document.getElementById('catsGrid').innerHTML = `
+                    <div class="empty" style="grid-column:1/-1;">
+                        <div class="empty-icon">📡</div>
+                        <p>تعذر تحميل البيانات</p>
+                        <button onclick="location.reload()" style="margin-top:12px;padding:10px 28px;border-radius:50px;background:var(--primary);color:white;border:none;font-family:inherit;font-size:14px;cursor:pointer;">🔄 إعادة المحاولة</button>
+                    </div>
+                `;
+                toast('❌ فشل تحميل البيانات');
+            }
+        }
 
         // ============================================================
         // المتغيرات العامة
@@ -1412,371 +1550,7 @@
         let adminSelectedCategory = null;
 
         // ============================================================
-        // دالة الترجمة
-        // ============================================================
-        function t(key) {
-            return translations[currentLang]?.[key] || translations.ar[key] || key;
-        }
-
-        // ============================================================
-        // Toast (إشعارات منبثقة)
-        // ============================================================
-        function toast(msg) {
-            const el = document.getElementById('toast');
-            el.textContent = msg;
-            el.classList.add('on');
-            clearTimeout(el._timer);
-            el._timer = setTimeout(() => el.classList.remove('on'), 3000);
-        }
-
-        // ============================================================
-        // ✅ إدارة التخزين المؤقت
-        // ============================================================
-        function saveItemsToCache(data) {
-            try {
-                localStorage.setItem('menuCache', JSON.stringify(data));
-                console.log('💾 تم حفظ البيانات في التخزين المؤقت');
-            } catch (e) {
-                console.warn('⚠️ فشل حفظ البيانات في التخزين المؤقت:', e);
-            }
-        }
-
-        function getItemsFromCache() {
-            try {
-                const cached = localStorage.getItem('menuCache');
-                if (!cached) return null;
-                const data = JSON.parse(cached);
-                if (data && data.length > 0) {
-                    console.log('💾 تم تحميل البيانات من التخزين المؤقت');
-                    return data;
-                }
-                return null;
-            } catch (e) {
-                console.warn('⚠️ فشل قراءة التخزين المؤقت:', e);
-                return null;
-            }
-        }
-
-        function clearCache() {
-            localStorage.removeItem('menuCache');
-            console.log('🗑️ تم مسح التخزين المؤقت');
-        }
-
-        // ============================================================
-        // ✅ تحميل البيانات
-        // ============================================================
-        async function loadData() {
-            renderCategorySkeletons();
-            isLoading = true;
-
-            const cachedItems = getItemsFromCache();
-            if (cachedItems && cachedItems.length > 0) {
-                items = cachedItems;
-                isLoading = false;
-                isDataLoaded = true;
-                renderCategories();
-                toast(t('dataCached'));
-                return;
-            }
-
-            try {
-                console.log('📡 جلب البيانات من Firebase...');
-                const snapshot = await db.orderBy('createdAt', 'desc').get();
-                
-                if (snapshot.empty) {
-                    clearCache();
-                    items = [];
-                    isLoading = false;
-                    isDataLoaded = true;
-                    renderCategories();
-                    toast('📭 لا توجد بيانات في الخادم');
-                    return;
-                }
-                
-                items = [];
-                snapshot.forEach(doc => items.push({ fid: doc.id, ...doc.data() }));
-                saveItemsToCache(items);
-                
-                isLoading = false;
-                isDataLoaded = true;
-                renderCategories();
-                toast(t('dataLoaded'));
-                
-            } catch (error) {
-                console.error('❌ خطأ في جلب البيانات:', error);
-                clearCache();
-                items = [];
-                isLoading = false;
-                document.getElementById('catsGrid').innerHTML = `
-                    <div class="empty" style="grid-column:1/-1;">
-                        <div class="empty-icon">📡</div>
-                        <p>${currentLang === 'en' ? 'Failed to load data' : currentLang === 'ku' ? 'بارکردنی داتا شکستی هێنا' : 'تعذر تحميل البيانات'}</p>
-                        <button onclick="loadData()" style="margin-top:12px;padding:10px 28px;border-radius:50px;background:var(--primary);color:white;border:none;font-family:inherit;font-size:14px;cursor:pointer;">🔄 ${currentLang === 'en' ? 'Retry' : currentLang === 'ku' ? 'هەوڵبدەرەوە' : 'إعادة المحاولة'}</button>
-                    </div>
-                `;
-                toast(t('toastError'));
-            }
-        }
-
-        // ============================================================
-        // ✅ تحديث التخزين المؤقت بعد تغيير البيانات
-        // ============================================================
-        async function refreshCacheAfterChange() {
-            try {
-                console.log('🔄 تحديث التخزين المؤقت بعد تغيير البيانات...');
-                const snapshot = await db.orderBy('createdAt', 'desc').get();
-                const newItems = [];
-                snapshot.forEach(doc => newItems.push({ fid: doc.id, ...doc.data() }));
-                
-                if (newItems.length > 0) {
-                    items = newItems;
-                    saveItemsToCache(items);
-                    if (selectedCategory === null) {
-                        renderCategories();
-                    } else {
-                        renderItemsForCategory(selectedCategory);
-                    }
-                    updateCatsBar();
-                    if (document.getElementById('adminPanel').classList.contains('show')) {
-                        renderAdminCategories();
-                    }
-                    console.log('✅ تم تحديث التخزين المؤقت بنجاح');
-                } else {
-                    clearCache();
-                    items = [];
-                    renderCategories();
-                    if (document.getElementById('adminPanel').classList.contains('show')) {
-                        renderAdminCategories();
-                    }
-                }
-            } catch (e) {
-                console.warn('⚠️ فشل تحديث التخزين المؤقت:', e);
-            }
-        }
-
-        // ============================================================
-        // ✅ إدارة الجلسة في Firebase
-        // ============================================================
-        async function saveSessionToFirebase(email, expiry) {
-            try {
-                await sessionDB.doc('current').set({
-                    email: email,
-                    expiry: expiry,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                console.log('✅ تم حفظ الجلسة في Firebase');
-            } catch (e) {
-                console.warn('⚠️ فشل حفظ الجلسة في Firebase:', e);
-            }
-        }
-
-        async function getSessionFromFirebase() {
-            try {
-                const doc = await sessionDB.doc('current').get();
-                if (doc.exists) {
-                    return doc.data();
-                }
-                return null;
-            } catch (e) {
-                console.warn('⚠️ فشل جلب الجلسة من Firebase:', e);
-                return null;
-            }
-        }
-
-        async function clearSessionFromFirebase() {
-            try {
-                await sessionDB.doc('current').delete();
-                console.log('🗑️ تم حذف الجلسة من Firebase');
-            } catch (e) {
-                console.warn('⚠️ فشل حذف الجلسة من Firebase:', e);
-            }
-        }
-
-        async function checkSession() {
-            const firebaseSession = await getSessionFromFirebase();
-            if (firebaseSession && firebaseSession.expiry) {
-                const now = Date.now();
-                if (now < firebaseSession.expiry) {
-                    isLoggedIn = true;
-                    loginExpiry = firebaseSession.expiry;
-                    localStorage.setItem('adminSession', JSON.stringify({
-                        email: firebaseSession.email,
-                        expiry: firebaseSession.expiry
-                    }));
-                    return true;
-                } else {
-                    await clearSessionFromFirebase();
-                    localStorage.removeItem('adminSession');
-                    isLoggedIn = false;
-                    loginExpiry = null;
-                    return false;
-                }
-            }
-
-            const saved = localStorage.getItem('adminSession');
-            if (saved) {
-                try {
-                    const session = JSON.parse(saved);
-                    if (Date.now() < session.expiry) {
-                        isLoggedIn = true;
-                        loginExpiry = session.expiry;
-                        await saveSessionToFirebase(session.email, session.expiry);
-                        return true;
-                    } else {
-                        localStorage.removeItem('adminSession');
-                        await clearSessionFromFirebase();
-                        isLoggedIn = false;
-                        loginExpiry = null;
-                        return false;
-                    }
-                } catch (e) {
-                    return false;
-                }
-            }
-
-            isLoggedIn = false;
-            loginExpiry = null;
-            return false;
-        }
-
-        function saveSession(durationSeconds) {
-            const expiry = Date.now() + (durationSeconds * 1000);
-            const session = {
-                email: ADMIN_EMAIL,
-                expiry: expiry
-            };
-            
-            localStorage.setItem('adminSession', JSON.stringify(session));
-            saveSessionToFirebase(ADMIN_EMAIL, expiry);
-            
-            isLoggedIn = true;
-            loginExpiry = expiry;
-            console.log('✅ تم حفظ الجلسة حتى:', new Date(expiry).toLocaleString());
-        }
-
-        async function logout() {
-            localStorage.removeItem('adminSession');
-            await clearSessionFromFirebase();
-            isLoggedIn = false;
-            loginExpiry = null;
-            closeAdmin();
-            toast(t('logoutSuccess'));
-            console.log('👋 تم تسجيل الخروج');
-        }
-
-        // ============================================================
-        // تطبيق اللغة
-        // ============================================================
-        function applyLanguage() {
-            const isRTL = currentLang === 'ar' || currentLang === 'ku';
-            document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
-            document.documentElement.lang = currentLang;
-            document.body.classList.toggle('lang-en', currentLang === 'en');
-            
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                el.textContent = t(key);
-            });
-            
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                el.placeholder = t(key);
-            });
-            
-            document.getElementById('langSelect').value = currentLang;
-            updatePageTitle();
-            
-            if (!isLoading && isDataLoaded) {
-                if (selectedCategory === null) {
-                    renderCategories();
-                } else {
-                    renderItemsForCategory(selectedCategory);
-                }
-                updateCatsBar();
-                if (document.getElementById('adminPanel').classList.contains('show')) {
-                    renderAdminCategories();
-                }
-            }
-        }
-
-        // ============================================================
-        // تحديث عنوان الصفحة الرئيسية
-        // ============================================================
-        function updatePageTitle() {
-            const titleDiv = document.getElementById('pageTitle');
-            const catTitleDiv = document.getElementById('categoryTitle');
-            const backBtn = document.getElementById('backBtn');
-            
-            if (selectedCategory === null) {
-                titleDiv.style.display = 'block';
-                catTitleDiv.style.display = 'none';
-                backBtn.classList.remove('show');
-                document.getElementById('totalCount').textContent = items.length > 0 ? `${items.length} ${t('itemsCount')}` : '';
-                document.getElementById('searchInput').placeholder = t('search');
-            } else {
-                titleDiv.style.display = 'none';
-                catTitleDiv.style.display = 'block';
-                backBtn.classList.add('show');
-                document.getElementById('selectedCategoryName').textContent = selectedCategory;
-                document.getElementById('searchInput').placeholder = `${t('searchIn')} ${selectedCategory}...`;
-            }
-        }
-
-        // ============================================================
-        // تحديث شريط التصنيفات الأفقي
-        // ============================================================
-        function updateCatsBar() {
-            const bar = document.getElementById('catsBar');
-            if (!items || items.length === 0) {
-                bar.innerHTML = '';
-                return;
-            }
-            
-            const allText = t('all') || 'الكل';
-            const categories = [allText, ...new Set(items.map(i => i.category || 'بدون'))];
-            
-            let activeCat = selectedCategory || allText;
-            if (selectedCategory === null) {
-                activeCat = allText;
-            }
-            
-            bar.innerHTML = categories.map(c => `
-                <button class="cat-bar-btn ${c === activeCat ? 'active' : ''}" onclick="selectCategoryFromBar('${c}')">
-                    ${c}
-                </button>
-            `).join('');
-        }
-
-        function selectCategoryFromBar(category) {
-            const allText = t('all') || 'الكل';
-            
-            if (category === allText) {
-                goBackToCategories();
-            } else {
-                let originalCat = category;
-                const categoryMap = {};
-                items.forEach(item => {
-                    const cat = item.category || 'بدون';
-                    if (!categoryMap[cat]) {
-                        categoryMap[cat] = cat;
-                    }
-                });
-                
-                for (const key of Object.keys(categoryMap)) {
-                    if (category === key) {
-                        originalCat = key;
-                        break;
-                    }
-                }
-                
-                selectedCategory = originalCat;
-                renderItemsForCategory(originalCat);
-                updateCatsBar();
-            }
-        }
-
-        // ============================================================
-        // عرض شاشة التحميل للتصنيفات
+        // دوال العرض (مع Skeleton)
         // ============================================================
         function renderCategorySkeletons() {
             const grid = document.getElementById('catsGrid');
@@ -1784,20 +1558,17 @@
             const count = window.innerWidth < 400 ? 4 : 6;
             for (let i = 0; i < count; i++) {
                 grid.innerHTML += `
-                    <div class="skeleton-cat" style="animation-delay: ${i * 0.04}s">
-                        <div class="skeleton-img"></div>
+                    <div class="skeleton-cat" style="animation-delay: ${i * 0.1}s">
+                        <div class="skeleton-img shimmer"></div>
                         <div class="skeleton-body">
-                            <div class="skeleton-line"></div>
-                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line shimmer"></div>
+                            <div class="skeleton-line short shimmer"></div>
                         </div>
                     </div>
                 `;
             }
         }
 
-        // ============================================================
-        // عرض التصنيفات (الصفحة الرئيسية)
-        // ============================================================
         function renderCategories() {
             const grid = document.getElementById('catsGrid');
             const container = document.getElementById('categoriesContainer');
@@ -1837,7 +1608,7 @@
                 const catItems = categoriesMap[cat];
                 let imgSrc = '';
                 for (let item of catItems) {
-                    if (item.image && item.image.startsWith('http')) {
+                    if (item.image && (item.image.startsWith('data:image') || item.image.startsWith('http'))) {
                         imgSrc = item.image;
                         break;
                     }
@@ -1873,7 +1644,7 @@
         }
 
         // ============================================================
-        // اختيار تصنيف (من البطاقات - الصفحة الرئيسية)
+        // باقي الدوال (مختصرة) - نفس الكود السابق
         // ============================================================
         function selectCategory(category) {
             selectedCategory = category;
@@ -1881,9 +1652,6 @@
             updateCatsBar();
         }
 
-        // ============================================================
-        // عرض أطباق تصنيف معين (الصفحة الرئيسية)
-        // ============================================================
         function renderItemsForCategory(category) {
             const container = document.getElementById('categoriesContainer');
             const itemsContainer = document.getElementById('itemsContainer');
@@ -1895,7 +1663,6 @@
             updateCatsBar();
             
             const filtered = items.filter(item => (item.category || 'بدون') === category);
-            
             const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
             let finalItems = filtered;
             if (searchVal) {
@@ -1912,14 +1679,16 @@
             
             grid.innerHTML = '';
             finalItems.forEach((item, idx) => {
+                const imgSrc = (item.image && (item.image.startsWith('data:image') || item.image.startsWith('http'))) 
+                    ? item.image 
+                    : 'https://placehold.co/400x250/1a1a35/666';
+                
                 const card = document.createElement('div');
                 card.className = `card ${item.available === false ? 'off' : ''}`;
                 card.style.animationDelay = `${Math.min(idx * 0.03, 0.3)}s`;
                 card.innerHTML = `
                     <div class="card-img-wrap">
-                        <img src="${item.image || 'https://placehold.co/400x250/1a1a35/666'}" 
-                             onerror="this.src='https://placehold.co/400x250/1a1a35/666'" 
-                             loading="lazy" decoding="async">
+                        <img src="${imgSrc}" onerror="this.src='https://placehold.co/400x250/1a1a35/666'" loading="lazy" decoding="async">
                         <div class="card-cat">${item.category || ''}</div>
                         <div class="card-badge ${item.available !== false ? 'badge-on' : 'badge-off'}">${item.available !== false ? t('available') : t('unavailable')}</div>
                     </div>
@@ -1933,66 +1702,77 @@
             });
         }
 
-        // ============================================================
-        // العودة إلى التصنيفات (الصفحة الرئيسية)
-        // ============================================================
         function goBackToCategories() {
             document.getElementById('searchInput').value = '';
             renderCategories();
         }
 
-        // ============================================================
-        // معالج البحث (الصفحة الرئيسية)
-        // ============================================================
+        function updateCatsBar() {
+            const bar = document.getElementById('catsBar');
+            if (!items || items.length === 0) {
+                bar.innerHTML = '';
+                return;
+            }
+            const allText = t('all') || 'الكل';
+            const categories = [allText, ...new Set(items.map(i => i.category || 'بدون'))];
+            let activeCat = selectedCategory || allText;
+            if (selectedCategory === null) activeCat = allText;
+            bar.innerHTML = categories.map(c => `
+                <button class="cat-bar-btn ${c === activeCat ? 'active' : ''}" onclick="selectCategoryFromBar('${c}')">${c}</button>
+            `).join('');
+        }
+
+        function selectCategoryFromBar(category) {
+            const allText = t('all') || 'الكل';
+            if (category === allText) { goBackToCategories(); return; }
+            let originalCat = category;
+            const categoryMap = {};
+            items.forEach(item => {
+                const cat = item.category || 'بدون';
+                if (!categoryMap[cat]) categoryMap[cat] = cat;
+            });
+            for (const key of Object.keys(categoryMap)) {
+                if (category === key) { originalCat = key; break; }
+            }
+            selectedCategory = originalCat;
+            renderItemsForCategory(originalCat);
+            updateCatsBar();
+        }
+
         function handleSearch() {
             if (selectedCategory === null) {
                 const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
                 const grid = document.getElementById('catsGrid');
-                
-                if (!searchVal) {
-                    renderCategories();
-                    return;
-                }
-                
+                if (!searchVal) { renderCategories(); return; }
                 const filteredItems = items.filter(i => 
                     (i.name || '').toLowerCase().includes(searchVal) || 
                     (i.description || '').toLowerCase().includes(searchVal)
                 );
-                
                 const categoriesMap = {};
                 filteredItems.forEach(item => {
                     const cat = item.category || 'بدون';
-                    if (!categoriesMap[cat]) {
-                        categoriesMap[cat] = [];
-                    }
+                    if (!categoriesMap[cat]) categoriesMap[cat] = [];
                     categoriesMap[cat].push(item);
                 });
-                
-                const sortedCategories = Object.keys(categoriesMap).sort((a, b) => {
-                    return categoriesMap[b].length - categoriesMap[a].length;
-                });
-                
+                const sortedCategories = Object.keys(categoriesMap).sort((a, b) => categoriesMap[b].length - categoriesMap[a].length);
                 if (!sortedCategories.length) {
                     grid.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div>${t('empty')}</div>`;
                     return;
                 }
-                
                 grid.innerHTML = '';
                 sortedCategories.forEach((cat, idx) => {
                     const catItems = categoriesMap[cat];
                     let imgSrc = '';
                     for (let item of catItems) {
-                        if (item.image && item.image.startsWith('http')) {
+                        if (item.image && (item.image.startsWith('data:image') || item.image.startsWith('http'))) {
                             imgSrc = item.image;
                             break;
                         }
                     }
-                    
                     const card = document.createElement('div');
                     card.className = 'cat-card';
                     card.style.animationDelay = `${Math.min(idx * 0.04, 0.3)}s`;
                     card.onclick = () => selectCategory(cat);
-                    
                     if (imgSrc) {
                         card.innerHTML = `
                             <img class="cat-img" src="${imgSrc}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" loading="lazy">
@@ -2018,83 +1798,27 @@
             }
         }
 
-        // ============================================================
-        // دالات الإعدادات
-        // ============================================================
-        function openSettings() {
-            document.getElementById('settingsModal').classList.add('show');
-            document.getElementById('langSelect').value = currentLang;
-        }
-        function closeSettings() {
-            document.getElementById('settingsModal').classList.remove('show');
-        }
-
-        function toggleDarkMode() {
-            isDark = !isDark;
-            document.body.classList.toggle('light-mode', !isDark);
-            document.getElementById('darkToggle').classList.toggle('on', isDark);
-            localStorage.setItem('dark', isDark);
-        }
-
-        function changeLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('lang', lang);
-            applyLanguage();
-        }
-
-        // ============================================================
-        // دالات تسجيل الدخول
-        // ============================================================
-        async function openAdminLogin() {
-            const hasSession = await checkSession();
-            if (hasSession) {
-                closeSettings();
-                document.getElementById('adminPanel').classList.add('show');
-                document.body.style.overflow = 'hidden';
-                renderAdminCategories();
-                applyLanguage();
-                toast(t('alreadyLoggedIn'));
-                return;
-            }
-            
-            closeSettings();
-            document.getElementById('loginModal').classList.add('show');
-            document.getElementById('errMsg').style.display = 'none';
-            document.getElementById('emailInput').value = '';
-            document.getElementById('passInput').value = '';
-            applyLanguage();
-        }
-        
-        function closeLogin() {
-            document.getElementById('loginModal').classList.remove('show');
-        }
-
-        async function checkLogin(durationSeconds) {
-            const email = document.getElementById('emailInput').value.trim();
-            const pass = document.getElementById('passInput').value;
-            
-            if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
-                saveSession(durationSeconds);
-                closeLogin();
-                document.getElementById('adminPanel').classList.add('show');
-                document.body.style.overflow = 'hidden';
-                renderAdminCategories();
-                applyLanguage();
-                toast(t('loginSuccess'));
+        function updatePageTitle() {
+            const titleDiv = document.getElementById('pageTitle');
+            const catTitleDiv = document.getElementById('categoryTitle');
+            const backBtn = document.getElementById('backBtn');
+            if (selectedCategory === null) {
+                titleDiv.style.display = 'block';
+                catTitleDiv.style.display = 'none';
+                backBtn.classList.remove('show');
+                document.getElementById('totalCount').textContent = items.length > 0 ? `${items.length} ${t('itemsCount')}` : '';
+                document.getElementById('searchInput').placeholder = t('search');
             } else {
-                document.getElementById('errMsg').style.display = 'block';
+                titleDiv.style.display = 'none';
+                catTitleDiv.style.display = 'block';
+                backBtn.classList.add('show');
+                document.getElementById('selectedCategoryName').textContent = selectedCategory;
+                document.getElementById('searchInput').placeholder = `${t('searchIn')} ${selectedCategory}...`;
             }
         }
 
-        document.getElementById('passInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') checkLogin(86400);
-        });
-        document.getElementById('emailInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') document.getElementById('passInput').focus();
-        });
-
         // ============================================================
-        // ✅ لوحة التحكم - عرض التصنيفات (مثل الصفحة الرئيسية)
+        // دوال لوحة التحكم (مختصرة جداً)
         // ============================================================
         function renderAdminCategories() {
             const grid = document.getElementById('adminCatsGrid');
@@ -2119,32 +1843,26 @@
             const categoriesMap = {};
             items.forEach(item => {
                 const cat = item.category || 'بدون';
-                if (!categoriesMap[cat]) {
-                    categoriesMap[cat] = [];
-                }
+                if (!categoriesMap[cat]) categoriesMap[cat] = [];
                 categoriesMap[cat].push(item);
             });
             
-            const sortedCategories = Object.keys(categoriesMap).sort((a, b) => {
-                return categoriesMap[b].length - categoriesMap[a].length;
-            });
+            const sortedCategories = Object.keys(categoriesMap).sort((a, b) => categoriesMap[b].length - categoriesMap[a].length);
             
             grid.innerHTML = '';
             sortedCategories.forEach((cat, idx) => {
                 const catItems = categoriesMap[cat];
                 let imgSrc = '';
                 for (let item of catItems) {
-                    if (item.image && item.image.startsWith('http')) {
+                    if (item.image && (item.image.startsWith('data:image') || item.image.startsWith('http'))) {
                         imgSrc = item.image;
                         break;
                     }
                 }
-                
                 const card = document.createElement('div');
                 card.className = 'admin-cat-card';
                 card.style.animationDelay = `${Math.min(idx * 0.04, 0.3)}s`;
                 card.onclick = () => adminSelectCategory(cat);
-                
                 if (imgSrc) {
                     card.innerHTML = `
                         <img class="cat-img" src="${imgSrc}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" loading="lazy">
@@ -2167,17 +1885,11 @@
             });
         }
 
-        // ============================================================
-        // ✅ لوحة التحكم - اختيار تصنيف
-        // ============================================================
         function adminSelectCategory(category) {
             adminSelectedCategory = category;
             renderAdminItemsForCategory(category);
         }
 
-        // ============================================================
-        // ✅ لوحة التحكم - عرض أطباق تصنيف معين
-        // ============================================================
         function renderAdminItemsForCategory(category) {
             const container = document.getElementById('adminCategoriesContainer');
             const itemsContainer = document.getElementById('adminItemsContainer');
@@ -2194,25 +1906,22 @@
             document.getElementById('adminSelectedCategoryName').textContent = category;
             
             const filtered = items.filter(item => (item.category || 'بدون') === category);
-            
             if (!filtered.length) {
                 grid.innerHTML = `<div class="empty"><div class="empty-icon">🍽️</div>${t('empty')}</div>`;
                 return;
             }
-            
             grid.innerHTML = '';
             filtered.forEach((item, idx) => {
                 const statusClass = item.available !== false ? 'status-on' : 'status-off';
                 const statusText = item.available !== false ? t('available') : t('unavailable');
-                
+                const imgSrc = (item.image && (item.image.startsWith('data:image') || item.image.startsWith('http'))) 
+                    ? item.image : 'https://placehold.co/400x250/1a1a35/666';
                 const card = document.createElement('div');
                 card.className = 'admin-item-card';
                 card.style.animationDelay = `${Math.min(idx * 0.03, 0.3)}s`;
                 card.innerHTML = `
                     <div class="card-img-wrap">
-                        <img src="${item.image || 'https://placehold.co/400x250/1a1a35/666'}" 
-                             onerror="this.src='https://placehold.co/400x250/1a1a35/666'" 
-                             loading="lazy">
+                        <img src="${imgSrc}" onerror="this.src='https://placehold.co/400x250/1a1a35/666'" loading="lazy">
                         <div class="item-status ${statusClass}">${statusText}</div>
                     </div>
                     <div class="card-body">
@@ -2229,33 +1938,25 @@
             });
         }
 
-        // ============================================================
-        // ✅ لوحة التحكم - العودة إلى التصنيفات
-        // ============================================================
         function adminGoBackToCategories() {
             renderAdminCategories();
         }
 
         // ============================================================
-        // ✅ نافذة التعديل المنبثقة
+        // دوال الإضافة والتعديل والحذف (مختصرة)
         // ============================================================
         let editingFid = null;
 
         function openEditModal(fid) {
             const item = items.find(i => i.fid === fid);
-            if (!item) {
-                toast('❌ العنصر غير موجود');
-                return;
-            }
-            
+            if (!item) { toast('❌ العنصر غير موجود'); return; }
             editingFid = fid;
             document.getElementById('editId').value = fid;
             document.getElementById('editItemName').value = item.name || '';
             document.getElementById('editItemCat').value = item.category || 'وجبات سريعة';
             document.getElementById('editItemDesc').value = item.description || '';
             document.getElementById('editItemPrice').value = item.price || '';
-            
-            if (item.image && item.image.startsWith('http')) {
+            if (item.image && (item.image.startsWith('data:image') || item.image.startsWith('http'))) {
                 document.getElementById('editPreviewImg').src = item.image;
                 document.getElementById('editPreviewImg').style.display = 'block';
                 const box = document.getElementById('editFileBox');
@@ -2269,7 +1970,6 @@
                 box.querySelector('.ftxt').textContent = t('uploadText');
                 box.querySelector('.fico').textContent = '📁';
             }
-            
             editFile = null;
             document.getElementById('editFormTitle').textContent = t('editTitle') + ': ' + item.name;
             document.getElementById('editModal').classList.add('show');
@@ -2307,31 +2007,19 @@
             reader.readAsDataURL(f);
         }
 
-        // ============================================================
-        // ✅ تحديث العنصر (من النافذة المنبثقة)
-        // ============================================================
         async function updateItem() {
             const fid = document.getElementById('editId').value;
-            if (!fid) {
-                toast('⚠️ لا يوجد معرف للتعديل');
-                return;
-            }
-            
+            if (!fid) { toast('⚠️ لا يوجد معرف للتعديل'); return; }
             const name = document.getElementById('editItemName').value.trim();
             const price = parseFloat(document.getElementById('editItemPrice').value);
-            if (!name || isNaN(price)) {
-                toast(t('toastFill'));
-                return;
-            }
-            
+            if (!name || isNaN(price)) { toast(t('toastFill')); return; }
             let img = document.getElementById('editPreviewImg').src;
-            if (img && img.includes('placehold.co')) {
+            if (img && (img.includes('placehold.co') || !img.startsWith('data:image'))) {
                 const oldItem = items.find(i => i.fid === fid);
-                if (oldItem && oldItem.image && oldItem.image.startsWith('http')) {
+                if (oldItem && oldItem.image && (oldItem.image.startsWith('data:image') || oldItem.image.startsWith('http'))) {
                     img = oldItem.image;
                 }
             }
-            
             if (editFile) {
                 try {
                     document.getElementById('btnEditUpdate').textContent = '⏳ رفع الصورة...';
@@ -2343,20 +2031,16 @@
                     return;
                 }
             }
-            
             try {
                 document.getElementById('btnEditUpdate').textContent = '⏳ جاري الحفظ...';
                 document.getElementById('btnEditUpdate').disabled = true;
-                
                 const docRef = db.doc(fid);
                 const docSnap = await docRef.get();
-                
                 if (!docSnap.exists) {
                     toast('❌ المستند غير موجود في قاعدة البيانات');
                     resetEditUpdateBtn();
                     return;
                 }
-                
                 await docRef.update({
                     name: name,
                     category: document.getElementById('editItemCat').value,
@@ -2365,11 +2049,9 @@
                     image: img || 'https://placehold.co/400x250/1a1a35/666',
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                
                 closeEditModal();
-                await refreshCacheAfterChange();
+                await refreshDataAfterChange();
                 toast(t('toastUpdated'));
-                
             } catch (error) {
                 console.error('❌ خطأ في التعديل:', error);
                 toast(t('updateError') + error.message);
@@ -2382,20 +2064,13 @@
             document.getElementById('btnEditUpdate').disabled = false;
         }
 
-        // ============================================================
-        // رفع الصور
-        // ============================================================
         async function uploadImg(f) {
             const pb = document.getElementById('progBar'), pf = document.getElementById('progFill');
             pb.style.display = 'block';
             pf.style.width = '30%';
-            
             const fd = new FormData();
             fd.append('image', f);
-            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
-                method: 'POST',
-                body: fd
-            });
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
             pf.style.width = '80%';
             const data = await res.json();
             if (data.success) {
@@ -2430,17 +2105,10 @@
             reader.readAsDataURL(f);
         }
 
-        // ============================================================
-        // ✅ إضافة وحذف
-        // ============================================================
         async function addItem() {
             const name = document.getElementById('itemName').value.trim();
             const price = parseFloat(document.getElementById('itemPrice').value);
-            if (!name || isNaN(price)) {
-                toast(t('toastFill'));
-                return;
-            }
-            
+            if (!name || isNaN(price)) { toast(t('toastFill')); return; }
             let img = '';
             if (file) {
                 try {
@@ -2453,7 +2121,6 @@
                     return;
                 }
             }
-            
             try {
                 document.getElementById('btnAdd').textContent = '⏳...';
                 await db.add({
@@ -2466,7 +2133,7 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 resetForm();
-                await refreshCacheAfterChange();
+                await refreshDataAfterChange();
                 toast(t('toastAdded'));
             } catch (error) {
                 console.error('خطأ في الإضافة:', error);
@@ -2484,7 +2151,7 @@
             if (!confirm(t('confirmDel'))) return;
             try {
                 await db.doc(fid).delete();
-                await refreshCacheAfterChange();
+                await refreshDataAfterChange();
                 toast(t('toastDeleted'));
             } catch (error) {
                 console.error('❌ خطأ في الحذف:', error);
@@ -2501,18 +2168,192 @@
             document.getElementById('fileInput').value = '';
             document.getElementById('progBar').style.display = 'none';
             file = null;
-            
             const box = document.getElementById('fileBox');
             box.classList.remove('ok');
             box.querySelector('.ftxt').textContent = t('uploadText');
             box.querySelector('.fico').textContent = '📁';
-            
             resetBtn();
         }
 
+        async function refreshDataAfterChange() {
+            try {
+                const newVersion = Date.now();
+                await updateVersion(newVersion);
+                const menuDB = new MenuDB();
+                await menuDB.openDB();
+                await fetchAndSaveData(menuDB);
+                if (selectedCategory === null) {
+                    renderCategories();
+                } else {
+                    renderItemsForCategory(selectedCategory);
+                }
+                updateCatsBar();
+                if (document.getElementById('adminPanel').classList.contains('show')) {
+                    renderAdminCategories();
+                }
+                toast('🔄 تم تحديث البيانات بنجاح');
+            } catch (e) {
+                console.error('❌ فشل تحديث البيانات:', e);
+                toast('❌ فشل تحديث البيانات');
+            }
+        }
+
         // ============================================================
-        // دالات لوحة التحكم
+        // دوال إدارة الجلسة (مختصرة)
         // ============================================================
+        async function saveSessionToFirebase(email, expiry) {
+            try { await sessionDB.doc('current').set({ email, expiry, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); } catch (e) {}
+        }
+
+        async function getSessionFromFirebase() {
+            try { const doc = await sessionDB.doc('current').get(); return doc.exists ? doc.data() : null; } catch (e) { return null; }
+        }
+
+        async function clearSessionFromFirebase() {
+            try { await sessionDB.doc('current').delete(); } catch (e) {}
+        }
+
+        async function checkSession() {
+            const fbSession = await getSessionFromFirebase();
+            if (fbSession && fbSession.expiry && Date.now() < fbSession.expiry) {
+                isLoggedIn = true;
+                loginExpiry = fbSession.expiry;
+                localStorage.setItem('adminSession', JSON.stringify({ email: fbSession.email, expiry: fbSession.expiry }));
+                return true;
+            }
+            const saved = localStorage.getItem('adminSession');
+            if (saved) {
+                try {
+                    const session = JSON.parse(saved);
+                    if (Date.now() < session.expiry) {
+                        isLoggedIn = true;
+                        loginExpiry = session.expiry;
+                        await saveSessionToFirebase(session.email, session.expiry);
+                        return true;
+                    }
+                } catch (e) {}
+            }
+            isLoggedIn = false;
+            loginExpiry = null;
+            return false;
+        }
+
+        function saveSession(durationSeconds) {
+            const expiry = Date.now() + (durationSeconds * 1000);
+            const session = { email: ADMIN_EMAIL, expiry };
+            localStorage.setItem('adminSession', JSON.stringify(session));
+            saveSessionToFirebase(ADMIN_EMAIL, expiry);
+            isLoggedIn = true;
+            loginExpiry = expiry;
+        }
+
+        async function logout() {
+            localStorage.removeItem('adminSession');
+            await clearSessionFromFirebase();
+            isLoggedIn = false;
+            loginExpiry = null;
+            closeAdmin();
+            toast(t('logoutSuccess'));
+        }
+
+        // ============================================================
+        // دوال الإعدادات وتسجيل الدخول
+        // ============================================================
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('show');
+            document.getElementById('langSelect').value = currentLang;
+        }
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('show');
+        }
+
+        function toggleDarkMode() {
+            isDark = !isDark;
+            document.body.classList.toggle('light-mode', !isDark);
+            document.getElementById('darkToggle').classList.toggle('on', isDark);
+            localStorage.setItem('dark', isDark);
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const isRTL = currentLang === 'ar' || currentLang === 'ku';
+            document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+            document.documentElement.lang = currentLang;
+            document.body.classList.toggle('lang-en', currentLang === 'en');
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.textContent = t(key);
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                el.placeholder = t(key);
+            });
+            document.getElementById('langSelect').value = currentLang;
+            updatePageTitle();
+            if (!isLoading && isDataLoaded) {
+                if (selectedCategory === null) {
+                    renderCategories();
+                } else {
+                    renderItemsForCategory(selectedCategory);
+                }
+                updateCatsBar();
+                if (document.getElementById('adminPanel').classList.contains('show')) {
+                    renderAdminCategories();
+                }
+            }
+        }
+
+        async function openAdminLogin() {
+            const hasSession = await checkSession();
+            if (hasSession) {
+                closeSettings();
+                document.getElementById('adminPanel').classList.add('show');
+                document.body.style.overflow = 'hidden';
+                renderAdminCategories();
+                applyLanguage();
+                toast(t('alreadyLoggedIn'));
+                return;
+            }
+            closeSettings();
+            document.getElementById('loginModal').classList.add('show');
+            document.getElementById('errMsg').style.display = 'none';
+            document.getElementById('emailInput').value = '';
+            document.getElementById('passInput').value = '';
+            applyLanguage();
+        }
+
+        function closeLogin() {
+            document.getElementById('loginModal').classList.remove('show');
+        }
+
+        async function checkLogin(durationSeconds) {
+            const email = document.getElementById('emailInput').value.trim();
+            const pass = document.getElementById('passInput').value;
+            if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
+                saveSession(durationSeconds);
+                closeLogin();
+                document.getElementById('adminPanel').classList.add('show');
+                document.body.style.overflow = 'hidden';
+                renderAdminCategories();
+                applyLanguage();
+                toast(t('loginSuccess'));
+            } else {
+                document.getElementById('errMsg').style.display = 'block';
+            }
+        }
+
+        document.getElementById('passInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkLogin(86400);
+        });
+        document.getElementById('emailInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('passInput').focus();
+        });
+
         function closeAdmin() {
             document.getElementById('adminPanel').classList.remove('show');
             document.body.style.overflow = '';
@@ -2527,7 +2368,7 @@
         document.getElementById('darkToggle').classList.toggle('on', isDark);
 
         applyLanguage();
-        loadData();
+        loadMenuData();
 
         setTimeout(async () => {
             await checkSession();
