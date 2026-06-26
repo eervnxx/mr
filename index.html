@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WAVES | ويڤز</title>
     
+    <!-- ✅ منع البوتات -->
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- ✅ منع التخزين المؤقت للمتصفح -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -13,7 +21,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
     <style>
-        /* جميع الأنماط كما هي - نفس الكود السابق مع إضافة Shimmer Effect */
+        /* جميع الأنماط كما هي - نفس الكود السابق */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --bg: #0a0a14;
@@ -369,22 +377,14 @@
         }
         .price { font-size: 18px; font-weight: 800; color: var(--accent); }
         
-        /* ============================================================
-           Skeleton Loading مع Shimmer Effect
-           ============================================================ */
         .skeleton-cat {
             background: var(--surface);
             border-radius: var(--radius-lg);
             overflow: hidden;
-            position: relative;
+            animation: pulse 1.2s ease-in-out infinite;
         }
-        .skeleton-cat .skeleton-img {
-            height: 120px;
-            background: var(--surface2);
-        }
-        .skeleton-cat .skeleton-body {
-            padding: 12px 14px;
-        }
+        .skeleton-cat .skeleton-img { height: 120px; background: var(--surface2); }
+        .skeleton-cat .skeleton-body { padding: 12px 14px; }
         .skeleton-cat .skeleton-line {
             height: 14px;
             background: var(--surface2);
@@ -392,20 +392,6 @@
             margin-bottom: 4px;
         }
         .skeleton-cat .skeleton-line.short { width: 40%; }
-        
-        /* Shimmer Effect */
-        .shimmer {
-            animation: shimmer 1.5s ease-in-out infinite;
-            background: linear-gradient(90deg, var(--surface2) 25%, var(--surface) 50%, var(--surface2) 75%);
-            background-size: 200% 100%;
-        }
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        
-        .skeleton-cat .skeleton-img { animation: shimmer 1.5s ease-in-out infinite; }
-        .skeleton-cat .skeleton-line { animation: shimmer 1.5s ease-in-out infinite; }
         
         @keyframes pulse {
             0%, 100% { opacity: 0.5; }
@@ -551,9 +537,6 @@
             padding: 10px 8px;
         }
         
-        /* ============================================================
-           لوحة التحكم
-           ============================================================ */
         .admin-panel {
             display: none;
             position: fixed;
@@ -1443,9 +1426,49 @@
         }
 
         // ============================================================
-        // ✅ تحميل البيانات السريع مع Skeleton
+        // ✅ نظام Zero Reads - بعد أول تحميل
         // ============================================================
+        let dataLoadedOnce = false;
+        let isLoadingData = false;
+        let lastLoadTime = 0;
+        const MIN_LOAD_INTERVAL = 86400000; // 24 ساعة
+
         async function loadMenuData() {
+            // ✅ منع التحميل إذا كان هناك طلب قيد التنفيذ
+            if (isLoadingData) {
+                console.log('⏳ جاري التحميل بالفعل...');
+                return;
+            }
+
+            // ✅ منع التحميل إذا تم التحميل بالفعل في هذه الجلسة
+            if (dataLoadedOnce) {
+                console.log('⏭️ البيانات محملة مسبقاً، تخطي...');
+                return;
+            }
+
+            // ✅ منع التحميل إذا مر أقل من 24 ساعة على آخر تحميل
+            const now = Date.now();
+            if (lastLoadTime > 0 && (now - lastLoadTime) < MIN_LOAD_INTERVAL) {
+                console.log('⏳ تم التحميل مؤخراً (أقل من 24 ساعة)، استخدام IndexedDB');
+                const menuDB = new MenuDB();
+                try { await menuDB.openDB(); } catch (e) {}
+                try {
+                    const data = await menuDB.getData();
+                    if (data && data.length > 0) {
+                        items = data;
+                        isLoading = false;
+                        isDataLoaded = true;
+                        dataLoadedOnce = true;
+                        renderCategories();
+                        toast('💾 بيانات من المتصفح');
+                        return;
+                    }
+                } catch (e) {}
+            }
+
+            isLoadingData = true;
+            console.log('🔄 بدء تحميل البيانات...');
+            
             const menuDB = new MenuDB();
             try { await menuDB.openDB(); } catch (e) { console.warn(e); }
             
@@ -1455,10 +1478,10 @@
             
             console.log(`📌 الإصدار المحلي: ${localVersion}, الإصدار الحالي: ${currentVersion}`);
             
-            // عرض Skeleton فوراً
+            // ✅ عرض Skeleton فوراً
             renderCategorySkeletons();
             
-            // إذا كان الإصدار متطابقاً، نحاول التحميل من IndexedDB
+            // ✅ محاولة تحميل من IndexedDB (0 قراءات)
             if (localVersion === currentVersion && localVersion > 0) {
                 try {
                     const data = await menuDB.getData();
@@ -1466,20 +1489,26 @@
                         items = data;
                         isLoading = false;
                         isDataLoaded = true;
+                        dataLoadedOnce = true;
+                        lastLoadTime = now;
                         renderCategories();
                         toast('💾 تم تحميل البيانات من المتصفح');
+                        isLoadingData = false;
                         return;
                     }
                 } catch (e) { console.warn(e); }
             }
             
-            // جلب من Firebase
+            // ✅ فقط إذا لم تكن هناك بيانات أو الإصدار مختلف، نجلب من Firebase
             await fetchAndSaveData(menuDB);
+            isLoadingData = false;
+            dataLoadedOnce = true;
+            lastLoadTime = Date.now();
         }
 
         async function fetchAndSaveData(menuDB) {
             try {
-                console.log('📡 جلب البيانات من Firebase...');
+                console.log('📡 جلب البيانات من Firebase (مرة واحدة)...');
                 const snapshot = await db.orderBy('createdAt', 'desc').get();
                 
                 if (snapshot.empty) {
@@ -1503,10 +1532,10 @@
                 
                 items = newItems;
                 
-                // حفظ في IndexedDB
+                // ✅ حفظ في IndexedDB
                 try { await menuDB.saveData(items); } catch (e) { console.warn(e); }
                 
-                // حفظ الإصدار
+                // ✅ حفظ الإصدار
                 let currentVersion = 0;
                 try { currentVersion = await getCurrentVersion(); } catch (e) {
                     currentVersion = Date.now();
@@ -1514,7 +1543,7 @@
                 }
                 setLocalVersion(currentVersion);
                 
-                // عرض البيانات
+                // ✅ عرض البيانات
                 isLoading = false;
                 isDataLoaded = true;
                 renderCategories();
@@ -1535,6 +1564,36 @@
         }
 
         // ============================================================
+        // ✅ تحديث البيانات فقط عند تغييرها من المشرف
+        // ============================================================
+        async function refreshDataAfterChange() {
+            try {
+                console.log('🔄 تحديث البيانات بعد التغيير...');
+                const newVersion = Date.now();
+                await updateVersion(newVersion);
+                const menuDB = new MenuDB();
+                await menuDB.openDB();
+                await fetchAndSaveData(menuDB);
+                dataLoadedOnce = true;
+                lastLoadTime = Date.now();
+                
+                if (selectedCategory === null) {
+                    renderCategories();
+                } else {
+                    renderItemsForCategory(selectedCategory);
+                }
+                updateCatsBar();
+                if (document.getElementById('adminPanel').classList.contains('show')) {
+                    renderAdminCategories();
+                }
+                toast('🔄 تم تحديث البيانات بنجاح');
+            } catch (e) {
+                console.error('❌ فشل تحديث البيانات:', e);
+                toast('❌ فشل تحديث البيانات');
+            }
+        }
+
+        // ============================================================
         // المتغيرات العامة
         // ============================================================
         let items = [];
@@ -1550,7 +1609,7 @@
         let adminSelectedCategory = null;
 
         // ============================================================
-        // دوال العرض (مع Skeleton)
+        // دوال العرض
         // ============================================================
         function renderCategorySkeletons() {
             const grid = document.getElementById('catsGrid');
@@ -1559,10 +1618,10 @@
             for (let i = 0; i < count; i++) {
                 grid.innerHTML += `
                     <div class="skeleton-cat" style="animation-delay: ${i * 0.1}s">
-                        <div class="skeleton-img shimmer"></div>
+                        <div class="skeleton-img"></div>
                         <div class="skeleton-body">
-                            <div class="skeleton-line shimmer"></div>
-                            <div class="skeleton-line short shimmer"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line short"></div>
                         </div>
                     </div>
                 `;
@@ -1644,7 +1703,7 @@
         }
 
         // ============================================================
-        // باقي الدوال (مختصرة) - نفس الكود السابق
+        // باقي الدوال (نفس الكود السابق)
         // ============================================================
         function selectCategory(category) {
             selectedCategory = category;
@@ -1818,7 +1877,7 @@
         }
 
         // ============================================================
-        // دوال لوحة التحكم (مختصرة جداً)
+        // دوال لوحة التحكم (مختصرة)
         // ============================================================
         function renderAdminCategories() {
             const grid = document.getElementById('adminCatsGrid');
@@ -1943,7 +2002,7 @@
         }
 
         // ============================================================
-        // دوال الإضافة والتعديل والحذف (مختصرة)
+        // دوال الإضافة والتعديل والحذف
         // ============================================================
         let editingFid = null;
 
@@ -2173,29 +2232,6 @@
             box.querySelector('.ftxt').textContent = t('uploadText');
             box.querySelector('.fico').textContent = '📁';
             resetBtn();
-        }
-
-        async function refreshDataAfterChange() {
-            try {
-                const newVersion = Date.now();
-                await updateVersion(newVersion);
-                const menuDB = new MenuDB();
-                await menuDB.openDB();
-                await fetchAndSaveData(menuDB);
-                if (selectedCategory === null) {
-                    renderCategories();
-                } else {
-                    renderItemsForCategory(selectedCategory);
-                }
-                updateCatsBar();
-                if (document.getElementById('adminPanel').classList.contains('show')) {
-                    renderAdminCategories();
-                }
-                toast('🔄 تم تحديث البيانات بنجاح');
-            } catch (e) {
-                console.error('❌ فشل تحديث البيانات:', e);
-                toast('❌ فشل تحديث البيانات');
-            }
         }
 
         // ============================================================
